@@ -13,7 +13,27 @@ import java.io.*;
  * @author Elaine
  */
 public class OOP extends javax.swing.JFrame {
-
+private void clearItemFields() {
+    ItemIDtxt.setText("");
+    ItemNameTxt.setText("");
+    ItemcategoryTxt.setText("");
+    itemCodeTxt.setText("");
+}
+// Helper to clear Supplier input fields
+private void clearSupplierFields() {
+    SupplierIDtxt.setText("");
+    SFullNametxt.setText("");
+    Addresstxt.setText("");
+    Phonetxt.setText("");
+}
+// Helper to clear Delivery input fields
+private void clearDeliveryFields() {
+    DeliverIDtxt.setText("");
+    Consignortxt.setText("");
+    Pricnetxt.setText("");
+    quantitytxt.setText("");
+    Datetxt.setText("");
+}
     /**
      * Creates new form OOP
      */
@@ -233,20 +253,21 @@ public class OOP extends javax.swing.JFrame {
                             .addComponent(jLabel10)
                             .addComponent(ItemIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel11))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGap(18, 18, 18)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 895, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel7))
-                .addContainerGap(88, Short.MAX_VALUE))
+                .addContainerGap(82, Short.MAX_VALUE))
         );
         ItemPanelLayout.setVerticalGroup(
             ItemPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ItemPanelLayout.createSequentialGroup()
-                .addComponent(jLabel7)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel11)
-                .addGap(4, 4, 4)
-                .addGroup(ItemPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(ItemPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(ItemPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel11)
+                        .addGap(4, 4, 4)
                         .addComponent(ItemIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel10)
@@ -265,9 +286,8 @@ public class OOP extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(ExportItemBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(DeleteItemBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 428, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(177, Short.MAX_VALUE))
+                        .addComponent(DeleteItemBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(206, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Item Record", ItemPanel);
@@ -595,6 +615,7 @@ public class OOP extends javax.swing.JFrame {
 
     private void DeliverBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeliverBtnActionPerformed
          jTabbedPane1.setSelectedIndex(1);
+         
     }//GEN-LAST:event_DeliverBtnActionPerformed
 
     private void ItemNameTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ItemNameTxtActionPerformed
@@ -606,7 +627,37 @@ public class OOP extends javax.swing.JFrame {
     }//GEN-LAST:event_SupplierBtnActionPerformed
 
     private void SaveItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveItemBtnActionPerformed
-    
+    String id = ItemIDtxt.getText().trim();
+    String name = ItemNameTxt.getText().trim();
+    String category = ItemcategoryTxt.getText().trim();
+    String code = itemCodeTxt.getText().trim();
+
+    if (id.isEmpty() || name.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Item ID and Item Name are required!");
+        return;
+    }
+
+    Items existingItem = null;
+    for (Items item : Main.getItems()) {
+        if (item.getItemID().equals(id)) {
+            existingItem = item;
+            break;
+        }
+    }
+
+    if (existingItem == null) {
+        Items newItem = new Items(id, name, 0, 0);
+        newItem.setItemCategory(category);
+        Main.getItems().add(newItem);
+        JOptionPane.showMessageDialog(this, "New item added!");
+    } else {
+        existingItem.setItemName(name);
+        existingItem.setItemCategory(category);
+        JOptionPane.showMessageDialog(this, "Item updated!");
+    }
+    clearItemFields();
+    loadItemTable();  
+        
     }//GEN-LAST:event_SaveItemBtnActionPerformed
 
     private void itemCodeTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemCodeTxtActionPerformed
@@ -622,6 +673,53 @@ public class OOP extends javax.swing.JFrame {
     }//GEN-LAST:event_PricnetxtActionPerformed
 
     private void saveDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveDeliBtnActionPerformed
+    String id = DeliverIDtxt.getText().trim();
+    String consignor = Consignortxt.getText().trim();
+    String priceStr = Pricnetxt.getText().trim();
+    String quantityStr = quantitytxt.getText().trim();
+    String date = Datetxt.getText().trim();
+
+    if (id.isEmpty() || consignor.isEmpty() || priceStr.isEmpty() || quantityStr.isEmpty() || date.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please fill all delivery fields.");
+        return;
+    }
+
+    double price;
+    int quantity;
+    try {
+        price = Double.parseDouble(priceStr);
+        quantity = Integer.parseInt(quantityStr);
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Price must be a decimal and Quantity must be an integer.");
+        return;
+    }
+
+    Delivers existingDelivery = null;
+    for (Delivers d : Main.getDeliveries()) {
+        if (d.getDeliverID().equals(id)) {
+            existingDelivery = d;
+            break;
+        }
+    }
+
+    if (existingDelivery == null) {
+        Delivers newDeli = new Delivers(id, "", consignor, "", quantity, price, date);
+        Main.getDeliveries().add(newDeli);
+        JOptionPane.showMessageDialog(this, "New delivery added.");
+    } else {
+        existingDelivery.setConsignor(consignor);
+        existingDelivery.setPrice(price);
+        existingDelivery.setQuantity(quantity);
+        existingDelivery.setDate(date);
+        JOptionPane.showMessageDialog(this, "Delivery updated!");
+    }
+    clearDeliveryFields();
+    loadDeliveryTable();  // Refresh table
+        
+        
+        
+        
+        
         
     }//GEN-LAST:event_saveDeliBtnActionPerformed
 
@@ -638,31 +736,196 @@ public class OOP extends javax.swing.JFrame {
     }//GEN-LAST:event_PhonetxtActionPerformed
 
     private void exportDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportDeliBtnActionPerformed
-        
+     StringBuilder sb = new StringBuilder();
+    for (Delivers d : Main.getDeliveries()) {
+        sb.append("ID: ").append(d.getDeliverID())
+          .append(", Consignor: ").append(d.getConsignor())
+          .append(", Price: ").append(d.getPrice())
+          .append(", Quantity: ").append(d.getQuantity())
+          .append(", Date: ").append(d.getDate())
+          .append("\n");
+    }
+    JOptionPane.showMessageDialog(this, sb.length() == 0 ? "No deliveries found." : sb.toString(), "Deliveries", JOptionPane.INFORMATION_MESSAGE);
+}
+
+private void DeleteDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {
+    String id = DeliverIDtxt.getText().trim();
+    if (id.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Enter Delivery ID to delete.");
+        return;
+    }
+
+    Delivers toRemove = null;
+    for (Delivers d : Main.getDeliveries()) {
+        if (d.getDeliverID().equals(id)) {
+            toRemove = d;
+            break;
+        }
+    }
+
+    if (toRemove != null) {
+        Main.getDeliveries().remove(toRemove);
+        JOptionPane.showMessageDialog(this, "Delivery deleted.");
+        clearDeliveryFields();
+    } else {
+        JOptionPane.showMessageDialog(this, "Delivery ID not found.");
+    }   
     }//GEN-LAST:event_exportDeliBtnActionPerformed
 
     private void SaveSupBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveSupBtnActionPerformed
+    String id = SupplierIDtxt.getText().trim();
+    String fullName = SFullNametxt.getText().trim();
+    String address = Addresstxt.getText().trim();
+    String phone = Phonetxt.getText().trim();
+
+    if(id.isEmpty() || fullName.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Supplier ID and Full Name required.");
+        return;
+    }
+
+    Supplier existingSupplier = null;
+    for(Supplier sup : Main.getSuppliers()) {
+        if(sup.getSupplierID().equals(id)) {
+            existingSupplier = sup;
+            break;
+        }
+    }
+
+    if(existingSupplier == null) {
+        Supplier newSup = new Supplier(id, fullName, "", phone, address);
+        Main.getSuppliers().add(newSup);
+        JOptionPane.showMessageDialog(this, "New supplier added!");
+    } else {
+        existingSupplier.setSupplierName(fullName);
+        existingSupplier.setAddress(address);
+        existingSupplier.setPhoneNumber(phone);
+        JOptionPane.showMessageDialog(this, "Supplier updated!");
+    }
+    clearSupplierFields();
+        
+        
+        
+        
+        
+        
         
     }//GEN-LAST:event_SaveSupBtnActionPerformed
 
     private void exportSupBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportSupBtnActionPerformed
-        
+   StringBuilder sb = new StringBuilder();
+    for (Supplier s : Main.getSuppliers()) {
+        sb.append("ID: ").append(s.getSupplierID())
+          .append(", Name: ").append(s.getSupplierName())
+          .append(", Address: ").append(s.getAddress())
+          .append(", Phone: ").append(s.getPhoneNumber())
+          .append("\n");
+    }
+    JOptionPane.showMessageDialog(this, sb.length() == 0 ? "No suppliers found." : sb.toString(), "Suppliers", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_exportSupBtnActionPerformed
 
     private void deleteSupBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteSupBtnActionPerformed
-        
+    String id = SupplierIDtxt.getText().trim();
+    if (id.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Enter Supplier ID to delete.");
+        return;
+    }
+
+    Supplier toRemove = null;
+    for (Supplier s : Main.getSuppliers()) {
+        if (s.getSupplierID().equals(id)) {
+            toRemove = s;
+            break;
+        }
+    }
+
+    if (toRemove != null) {
+        Main.getSuppliers().remove(toRemove);
+        JOptionPane.showMessageDialog(this, "Supplier deleted.");
+        clearSupplierFields();
+    } else {
+        JOptionPane.showMessageDialog(this, "Supplier ID not found.");
+    }   
     }//GEN-LAST:event_deleteSupBtnActionPerformed
 
     private void DeleteDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteDeliBtnActionPerformed
-        
+    String id = DeliverIDtxt.getText().trim();
+    if (id.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Enter Delivery ID to delete.");
+        return;
+    }
+
+    Delivers toRemove = null;
+    for (Delivers d : Main.getDeliveries()) {
+        if (d.getDeliverID().equals(id)) {
+            toRemove = d;
+            break;
+        }
+    }
+
+    if (toRemove != null) {
+        Main.getDeliveries().remove(toRemove);
+        JOptionPane.showMessageDialog(this, "Delivery deleted.");
+        clearDeliveryFields();
+    } else {
+        JOptionPane.showMessageDialog(this, "Delivery ID not found.");
+    }
     }//GEN-LAST:event_DeleteDeliBtnActionPerformed
 
     private void ExportItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportItemBtnActionPerformed
-        
+    StringBuilder sb = new StringBuilder();
+    for(Items item : Main.getItems()) {
+        sb.append("ID: ").append(item.getItemID())
+          .append(", Name: ").append(item.getItemName())
+          .append(", Category: ").append(item.getItemCategory())
+          .append("\n");
+    }
+    JOptionPane.showMessageDialog(this, sb.length()==0?"No items found":sb.toString(), "All Items", JOptionPane.INFORMATION_MESSAGE);
+}
+
+private void DeleteItemBtnActionPerformed(java.awt.event.ActionEvent evt) {
+    String id = ItemIDtxt.getText().trim();
+    if(id.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Enter Item ID to delete.");
+        return;
+    }
+    Items toRemove = null;
+    for(Items item : Main.getItems()) {
+        if(item.getItemID().equals(id)) {
+            toRemove = item;
+            break;
+        }
+    }
+    if(toRemove != null) {
+        Main.getItems().remove(toRemove);
+        JOptionPane.showMessageDialog(this, "Item deleted successfully.");
+        clearItemFields();
+    } else {
+        JOptionPane.showMessageDialog(this, "No item found with this ID.");
+    } 
     }//GEN-LAST:event_ExportItemBtnActionPerformed
 
     private void DeleteItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteItemBtnActionPerformed
-        
+    String id = ItemIDtxt.getText().trim();
+    if (id.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Enter Item ID to delete.");
+        return;
+    }
+
+    Items toRemove = null;
+    for (Items item : Main.getItems()) {
+        if (item.getItemID().equals(id)) {
+            toRemove = item;
+            break;
+        }
+    }
+
+    if (toRemove != null) {
+        Main.getItems().remove(toRemove);
+        JOptionPane.showMessageDialog(this, "Item deleted successfully.");
+        clearItemFields();
+    } else {
+        JOptionPane.showMessageDialog(this, "Item ID not found.");
+    }
     }//GEN-LAST:event_DeleteItemBtnActionPerformed
 
     /**
