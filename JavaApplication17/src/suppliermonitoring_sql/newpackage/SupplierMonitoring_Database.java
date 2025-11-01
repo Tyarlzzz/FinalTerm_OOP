@@ -1,4 +1,4 @@
-package suppliermonitoring_classes;
+package suppliermonitoring_sql.newpackage;
 import java.sql.*;
 
 public class SupplierMonitoring_Database {
