@@ -29,6 +29,7 @@ public class DatabaseConnection {
                     System.err.println("Message: " + e.getMessage());
                 }
             }
+            
         } catch (SQLException e) {
             System.err.println("Error checking connection status: " + e.getMessage());
         }

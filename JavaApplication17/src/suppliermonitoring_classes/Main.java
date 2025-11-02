@@ -13,6 +13,7 @@ public class Main {
     public static void main(String[] args) {
         boolean running = true;
 
+        // switch case for choosing options (to choose which module to manage)
         while (running) {
             printHeader("SUPPLIER MONITORING SYSTEM");
             System.out.println("1. Manage Items");
@@ -37,13 +38,15 @@ public class Main {
         }
         sc.close();
     }
-
+    
+    // purpose: to print a section header (for console only)
     private static void printHeader(String title) {
         System.out.println("========================================");
         System.out.println("      " + title);
         System.out.println("========================================");
     }
 
+    // error handling (it validates user input to ensure number lang ang pwede
     private static int getIntInput(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -55,7 +58,7 @@ public class Main {
         }
     }
 
-    // Supplier Management
+    // switch case for choosing options (add, view, update, delete)
     private static void manageSuppliers() {
         boolean back = false;
         while (!back) {
@@ -79,6 +82,7 @@ public class Main {
         }
     }
 
+    // calling the method to insert new data in database
     private static void addSupplier() {
         Supplier s = Supplier.inputSupplier();
         suppliers.add(s);
@@ -87,41 +91,18 @@ public class Main {
     }
 
     private static void viewSuppliers() {
-        Supplier.viewSuppliers();
+        Supplier.viewSuppliers(); // calling the method from supplier class to view data from our database
     }
 
     private static void updateSupplier() {
-        if (suppliers.isEmpty()) {
-            System.out.println("No suppliers to update.");
-            return;
-        }
-        viewSuppliers();
-        int index = getIntInput("Enter supplier number to update: ") - 1;
-
-        if (index >= 0 && index < suppliers.size()) {
-            suppliers.get(index).updateInfo(sc);
-        } else {
-            System.out.println("Invalid supplier number.");
-        }
+       Supplier.updateSupplierInDatabase(); // calling the method from supplier class to update old data from our database
     }
 
     private static void deleteSupplier() {
-        if (suppliers.isEmpty()) {
-            System.out.println("No suppliers to delete.");
-            return;
-        }
-        viewSuppliers();
-        int index = getIntInput("Enter supplier number to delete: ") - 1;
-
-        if (index >= 0 && index < suppliers.size()) {
-            suppliers.remove(index);
-            System.out.println("Supplier deleted successfully!");
-        } else {
-            System.out.println("Invalid supplier number.");
-        }
+        Supplier.deleteSupplierFromDatabase(); // calling the method from supplier class to delete data from our database
     }
-
-    // Item Management
+    
+    // this method handles item management option 
     private static void manageItems() {
         boolean back = false;
         while (!back) {
@@ -145,6 +126,7 @@ public class Main {
         }
     }
 
+    // calling the method to insert new data into database
     private static void addItem() {
         Items i = Items.inputItem();      
         items.add(i);                     
@@ -152,32 +134,22 @@ public class Main {
         System.out.println("Item/s added successfully!");
     }
 
-    
+    // calling the method to view data sa loob ng items
     private static void viewItems() {
          Items.viewItems();
     }
-
+    
+    // calling the method to update old data inside the database
     private static void updateItem() {
         Items.updateItemInDatabase();
     }
     
+    // calling the method to delete an item from database
     private static void deleteItem() {
-        if (items.isEmpty()) {
-            System.out.println("No items to delete.");
-            return;
-        }
-        viewItems();
-        int index = getIntInput("Enter item number to delete: ") - 1;
-
-        if (index >= 0 && index < items.size()) {
-            items.remove(index);
-            System.out.println("✓ Item deleted successfully!");
-        } else {
-            System.out.println("Invalid item number.");
-        }
+      Items.deleteItemFromDatabase();
     }
 
-    // Delivery Management
+    // handles delivery management options
     private static void manageDeliveries() {
         boolean back = false;
         while (!back) {
@@ -201,6 +173,7 @@ public class Main {
         }
     }
 
+    // insert new data into our database
     private static void addDelivery() {
         Delivers d = Delivers.inputDelivery();      
         deliveries.add(d);                     
@@ -208,51 +181,31 @@ public class Main {
         System.out.println("Delivery added successfully!");
     }
 
+    // view all deliveries from the database
     private static void viewDeliveries() {
         Delivers.viewDeliveries();
     }
 
+    // updates old delivery data inside the database
     private static void updateDelivery() {
-        if (deliveries.isEmpty()) {
-            System.out.println("No deliveries to update.");
-            return;
-        }
-        viewDeliveries();
-        int index = getIntInput("Enter delivery number to update: ") - 1;
-
-        if (index >= 0 && index < deliveries.size()) {
-            deliveries.get(index).updateInfo(sc);
-        } else {
-            System.out.println("Invalid delivery number.");
-        }
+       Delivers.updateDeliveryInDatabase();
     }
-
+    
+    //deletes a delivery record from the database
     private static void deleteDelivery() {
-        if (deliveries.isEmpty()) {
-            System.out.println("No deliveries to delete.");
-            return;
-        }
-        viewDeliveries();
-        int index = getIntInput("Enter delivery number to delete: ") - 1;
-
-        if (index >= 0 && index < deliveries.size()) {
-            deliveries.remove(index);
-            System.out.println("✓ Delivery deleted successfully!");
-        } else {
-            System.out.println("Invalid delivery number.");
-        }
+        Delivers.updateDeliveryInDatabase();
     }
 
     private static void displayAllRecords() {
         printHeader("ALL RECORDS");
 
-        System.out.println("\n--- ITEMS ---");
+        System.out.println("\nITEMS");
         viewItems();
 
-         System.out.println("\n--- SUPPLIERS ---");
+         System.out.println("\nSUPPLIERS");
         viewSuppliers();
         
-        System.out.println("\n--- DELIVERIES ---");
+        System.out.println("\nDELIVERIES");
         viewDeliveries();
 
         System.out.println("\n========================================");

@@ -4,11 +4,12 @@ import java.util.Scanner;
 import java.sql.*;
 
 public class Items {
-    private String itemID;  // Auto-generated
+    private String itemID;  
     private int code;
     private String name;
     private String category;
 
+    // initializes an item with given values 
     public Items(String itemID, int code, String name, String category) {
         this.itemID = itemID;
         this.code = code;
@@ -16,10 +17,10 @@ public class Items {
         this.category = category;
     }
 
-    // Input from user (no itemID, since it's auto_increment)
+    // purpose: to input new data (no itemID, since it's auto_increment)
     public static Items inputItem() {
         Scanner sc = new Scanner(System.in);
-        System.out.println("\n--- ADD ITEM ---");
+        System.out.println("\nADD ITEM");
 
         int code = getIntInput(sc, "Item Code: ");
         String name = getStringInput(sc, "Item Name: ");
@@ -29,6 +30,7 @@ public class Items {
         return new Items(null, code, name, category);
     }
 
+    // display all info
     public void displayInfo() {
         System.out.println("Item ID: " + itemID);
         System.out.println("Code: " + code);
@@ -36,8 +38,9 @@ public class Items {
         System.out.println("Category: " + category);
     }
 
+    // update old data 
     public void updateInfo(Scanner sc) {
-        System.out.println("\n--- UPDATE ITEM ---");
+        System.out.println("\nUPDATE ITEM");
         System.out.println("Leave blank to keep current value.");
 
         System.out.print("New Name [" + name + "]: ");
@@ -48,9 +51,10 @@ public class Items {
         String newCategory = sc.nextLine();
         if (!newCategory.isEmpty()) category = newCategory;
 
-        System.out.println("✓ Item updated successfully!");
+        System.out.println("Item updated successfully!");
     }
 
+    // error handling. ensures input for integer fields
     private static int getIntInput(Scanner sc, String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -61,12 +65,14 @@ public class Items {
             }
         }
     }
-
+    
+    // get string input
     private static String getStringInput(Scanner sc, String prompt) {
         System.out.print(prompt);
         return sc.nextLine();
     }
 
+    // insert new data inside database
     public void insertToDatabase_Item() {
         // itemID is auto_increment, so we exclude it from INSERT
         String query = "INSERT INTO item (code, name, category) VALUES (?, ?, ?)";
@@ -86,6 +92,7 @@ public class Items {
         }
     }
     
+    // retrieve and display all items inside database
     public static void viewItems() {
     String query = "SELECT * FROM item";
 
@@ -93,7 +100,7 @@ public class Items {
          Statement stmt = conn.createStatement();
          ResultSet rs = stmt.executeQuery(query)) {
 
-        System.out.println("\n--- ITEMS IN DATABASE ---");
+        System.out.println("\nITEMS IN DATABASE");
 
         boolean hasResults = false;
         while (rs.next()) {
@@ -118,23 +125,20 @@ public class Items {
         }
     }
     
+      // purpose: this will also update old data inside our database
       public static void updateItemInDatabase() {
         Scanner sc = new Scanner(System.in);
-
-        // Show existing items
         viewItems();
 
         System.out.print("\nEnter the Item ID you want to update: ");
         String itemID = sc.nextLine();
 
-        // Ask for new values
         System.out.print("Enter new name (leave blank to keep current): ");
         String newName = sc.nextLine();
 
         System.out.print("Enter new category (leave blank to keep current): ");
         String newCategory = sc.nextLine();
 
-        // Fetch current values (to preserve blank fields)
         String currentName = null, currentCategory = null;
 
         String selectQuery = "SELECT name, category FROM item WHERE itemID = ?";
@@ -153,12 +157,12 @@ public class Items {
                 System.out.println("❌ Item not found.");
                 return;
             }
-
-            // If blank, keep existing values
+            
+            // keep old values if input is blank
             if (newName.isEmpty()) newName = currentName;
             if (newCategory.isEmpty()) newCategory = currentCategory;
 
-            // Now perform update
+            // perform update
             try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
                 updateStmt.setString(1, newName);
                 updateStmt.setString(2, newCategory);
@@ -167,15 +171,63 @@ public class Items {
                 int rowsUpdated = updateStmt.executeUpdate();
 
                 if (rowsUpdated > 0) {
-                    System.out.println("✓ Item successfully updated in the database!");
+                    System.out.println("Item successfully updated in the database!");
                 } else {
-                    System.out.println("❌ No item updated. Please check the Item ID.");
+                    System.out.println("No item updated. Please check the Item ID.");
                 }
             }
 
         } catch (SQLException e) {
             System.err.println("Error updating item: " + e.getMessage());
         }
+        
     }
+    
+    // delete an item record from the database
+    public static void deleteItemFromDatabase() {
+        Scanner sc = new Scanner(System.in);
+        viewItems(); // show all items first
 
+        System.out.print("\nEnter the Item ID you want to delete: ");
+        String itemID = sc.nextLine();
+
+        String checkQuery = "SELECT * FROM item WHERE itemID = ?";
+        String deleteQuery = "DELETE FROM item WHERE itemID = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
+            
+            // check if item exists first
+            checkStmt.setString(1, itemID);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (!rs.next()) {
+                System.out.println("Item ID not found in the database.");
+                return;
+            }
+
+            // purpose: confirmation before deleting
+            System.out.print("Are you sure you want to delete this item? (y/n): ");
+            String confirm = sc.nextLine();
+            if (!confirm.equalsIgnoreCase("y")) {
+                System.out.println("Deletion cancelled.");
+                return;
+            }
+
+            // perform deletion
+            try (PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery)) {
+                deleteStmt.setString(1, itemID);
+                int rowsDeleted = deleteStmt.executeUpdate();
+
+                if (rowsDeleted > 0) {
+                    System.out.println("Item successfully deleted from database!");
+                } else {
+                    System.out.println("No item deleted. Please check the Item ID.");
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error deleting item: " + e.getMessage());
+        }
+    }
 }
