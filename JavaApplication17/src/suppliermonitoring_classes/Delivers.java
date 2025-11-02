@@ -1,8 +1,15 @@
 package suppliermonitoring_classes;
 
-import java.util.Scanner;
 import java.sql.*;
+import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
+/**
+ * Model class representing a Delivery record.
+ * This class is used to hold data retrieved from the Deliveries table,
+ * including joined fields (supplierName, itemName) for display in the GUI.
+ */
 public class Delivers {
     private String deliveryID;
     private String supplierID;
@@ -14,7 +21,9 @@ public class Delivers {
     private double price;
     private String date;
 
-    // constructor to initialize delivery object with all field values
+    /**
+     * Constructor to initialize delivery object. Used for both creation and reading.
+     */
     public Delivers(String deliveryID, String supplierID, String itemID, String consignor,
                     String supplierName, String itemName, int quantity, double price, String date) {
         this.deliveryID = deliveryID;
@@ -27,106 +36,63 @@ public class Delivers {
         this.price = price;
         this.date = date;
     }
-    
-    // to ask user for new delivery details and used when adding a new record (database)
-    public static Delivers inputDelivery() {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("\nADD DELIVERY");
 
-        System.out.print("Supplier ID: ");
-        String supplierID = sc.nextLine();
+    // --- Getter Methods ---
+    public String getDeliveryID() { return deliveryID; }
+    public String getSupplierID() { return supplierID; }
+    public String getItemID() { return itemID; }
+    public String getConsignor() { return consignor; }
+    public String getSupplierName() { return supplierName; }
+    public String getItemName() { return itemName; }
+    public int getQuantity() { return quantity; }
+    public double getPrice() { return price; }
+    public String getDate() { return date; }
 
-        System.out.print("Item ID: ");
-        String itemID = sc.nextLine();
+    // --- Setter Methods ---
+    public void setDeliveryID(String deliveryID) { this.deliveryID = deliveryID; }
+    public void setSupplierID(String supplierID) { this.supplierID = supplierID; }
+    public void setItemID(String itemID) { this.itemID = itemID; }
+    public void setConsignor(String consignor) { this.consignor = consignor; }
+    public void setSupplierName(String supplierName) { this.supplierName = supplierName; }
+    public void setItemName(String itemName) { this.itemName = itemName; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
+    public void setPrice(double price) { this.price = price; }
+    public void setDate(String date) { this.date = date; }
 
-        System.out.print("Consignor: ");
-        String consignor = sc.nextLine();
 
-        System.out.print("Supplier Name: ");
-        String supplierName = sc.nextLine();
-
-        System.out.print("Item Name: ");
-        String itemName = sc.nextLine();
-
-        int quantity = getIntInput(sc, "Quantity: ");
-        double price = getDoubleInput(sc, "Price: ");
-
-        System.out.print("Date (YYYY-MM-DD): ");
-        String date = sc.nextLine();
-
-        return new Delivers(null, supplierID, itemID, consignor, supplierName, itemName, quantity, price, date);
-    }
-
-    // to display all info
-    public void displayInfo() {
-        System.out.println("Delivery ID: " + deliveryID);
-        System.out.println("Supplier ID: " + supplierID);
-        System.out.println("Item ID: " + itemID);
-        System.out.println("Consignor: " + consignor);
-        System.out.println("Supplier Name: " + supplierName);
-        System.out.println("Item Name: " + itemName);
-        System.out.println("Quantity: " + quantity);
-        System.out.println("Price: " + price);
-        System.out.println("Date: " + date);
-    }
-
-    // purpose: update old data 
-    public void updateInfo(Scanner sc) {
-        System.out.println("\nUPDATE DELIVERY");
-        System.out.println("Leave blank to keep current value.");
-
-        System.out.print("New Quantity [" + quantity + "]: ");
-        String newQty = sc.nextLine();
-        if (!newQty.isEmpty()) {
-            try { quantity = Integer.parseInt(newQty); } 
-            catch (NumberFormatException e) { System.out.println("Invalid number."); }
-        }
-
-        System.out.print("New Price [" + price + "]: ");
-        String newPrice = sc.nextLine();
-        if (!newPrice.isEmpty()) {
-            try { price = Double.parseDouble(newPrice); } 
-            catch (NumberFormatException e) { System.out.println("Invalid number."); }
-        }
-
-        System.out.print("New Date [" + date + "]: ");
-        String newDate = sc.nextLine();
-        if (!newDate.isEmpty()) date = newDate;
-
-        System.out.println("✓ Delivery updated successfully!");
-    }
-
-    // purpose: insert new data in delivers method (includes validation that supplierID and itemID exists)
-    public void insertToDatabase_Delivers() {
+    /**
+     * Inserts the current Delivery object's data into the database, including foreign key validation.
+     * @return A status message.
+     */
+    public String insertToDatabase_Delivers() {
         String insertQuery = "INSERT INTO delivers (supplierID, itemID, consignor, supplier_name, item_name, quantity, price, date) "
                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection()) {
 
+            // 1. Check if supplierID exists
             String supplierCheck = "SELECT COUNT(*) FROM supplier WHERE supplierID = ?";
-            // to check if supplierID exist
             try (PreparedStatement pstmt = conn.prepareStatement(supplierCheck)) {
                 pstmt.setString(1, supplierID);
                 ResultSet rs = pstmt.executeQuery();
                 rs.next();
                 if (rs.getInt(1) == 0) {
-                    System.err.println("Error: Supplier ID '" + supplierID + "' does not exist in supplier table.");
-                    return;
+                    return "❌ Error: Supplier ID '" + supplierID + "' does not exist in the database.";
                 }
             }
 
+            // 2. Check if itemID exists
             String itemCheck = "SELECT COUNT(*) FROM item WHERE itemID = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(itemCheck)) {
                 pstmt.setString(1, itemID);
                 ResultSet rs = pstmt.executeQuery();
                 rs.next();
                 if (rs.getInt(1) == 0) {
-                    System.err.println("Error: Item ID '" + itemID + "' does not exist in item table.");
-                    return;
+                    return "❌ Error: Item ID '" + itemID + "' does not exist in the database.";
                 }
             }
             
-            // verification and insert record into delivers table
+            // 3. Insert record
             try (PreparedStatement pstmt = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, supplierID);
                 pstmt.setString(2, itemID);
@@ -141,163 +107,134 @@ public class Delivers {
 
                 ResultSet rs = pstmt.getGeneratedKeys();
                 if (rs.next()) {
-                    int generatedID = rs.getInt(1);
-                    System.out.println("Delivery successfully inserted! Generated Delivery ID: " + generatedID);
+                    // Update the object's deliveryID property if it was auto-generated
+                    this.deliveryID = rs.getString(1);
+                    return "✓ Delivery successfully inserted! ID: " + this.deliveryID;
                 } else {
-                    System.out.println("Delivery successfully inserted!");
+                    return "✓ Delivery successfully inserted!";
                 }
             }
 
         } catch (SQLException e) {
-            System.err.println("Error inserting delivery: " + e.getMessage());
+            return "❌ Error inserting delivery: " + e.getMessage();
         }
     }
 
-    // purpose: if you select it all from delivers table, it will show all the data
-    public static void viewDeliveries() {
-        String query = "SELECT * FROM delivers";
+    /**
+     * Retrieves all deliveries and formats the data for a JTable model.
+     * @return Vector of Vectors containing all delivery data.
+     */
+    public static Vector<Vector<Object>> getAllDeliveriesForTable() {
+        String query = "SELECT deliveryID, supplierID, itemID, consignor, supplier_name, item_name, quantity, price, date FROM delivers";
+        
+        // Use modern List/ArrayList internally for better performance and to avoid the obsolete warning
+        List<List<Object>> listData = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
-            System.out.println("\nDELIVERIES IN DATABASE");
-
-            boolean hasResults = false;
             while (rs.next()) {
-                hasResults = true;
-
-                System.out.println("\nDelivery ID: " + rs.getString("deliveryID"));
-                System.out.println("Supplier ID: " + rs.getString("supplierID"));
-                System.out.println("Item ID: " + rs.getString("itemID"));
-                System.out.println("Consignor: " + rs.getString("consignor"));
-                System.out.println("Supplier Name: " + rs.getString("supplier_name"));
-                System.out.println("Item Name: " + rs.getString("item_name"));
-                System.out.println("Quantity: " + rs.getInt("quantity"));
-                System.out.println("Price: " + rs.getDouble("price"));
-                System.out.println("Date: " + rs.getString("date"));
+                List<Object> row = new ArrayList<>();
+                row.add(rs.getString("deliveryID"));
+                row.add(rs.getString("supplierID"));
+                row.add(rs.getString("itemID"));
+                row.add(rs.getString("consignor"));
+                row.add(rs.getString("supplier_name"));
+                row.add(rs.getString("item_name"));
+                row.add(rs.getInt("quantity"));
+                row.add(rs.getDouble("price"));
+                row.add(rs.getString("date"));
+                listData.add(row);
             }
-
-            if (!hasResults) {
-                System.out.println("No deliveries found in the database.");
-            }
-
         } catch (SQLException e) {
-            System.err.println("Error retrieving deliveries: " + e.getMessage());
+            System.err.println("Error retrieving deliveries for table: " + e.getMessage());
         }
+        
+        // Convert the internal List structure back to the required Vector structure for JTable/Swing compatibility
+        Vector<Vector<Object>> tableData = new Vector<>();
+        for (List<Object> listRow : listData) {
+            // Convert each internal List row to a Vector row
+            tableData.add(new Vector<>(listRow)); 
+        }
+
+        return tableData;
     }
-    
-    // purpose: it also updates the data in sql
-    public static void updateDeliveryInDatabase() {
-        Scanner sc = new Scanner(System.in);
-        viewDeliveries();
 
-        System.out.print("\nEnter Delivery ID to update: ");
-        String deliveryID = sc.nextLine();
-
-        String selectQuery = "SELECT * FROM delivers WHERE deliveryID = ?";
+    /**
+     * Updates an existing delivery record in the database.
+     * @param deliveryID The ID of the delivery to update.
+     * @param newQuantity The new quantity (or -1 to ignore).
+     * @param newPrice The new price (or -1.0 to ignore).
+     * @param newDate The new date (or empty string to ignore).
+     * @return A status message.
+     */
+    public static String updateDeliveryInDatabase(String deliveryID, int newQuantity, double newPrice, String newDate) {
+        String selectQuery = "SELECT quantity, price, date FROM delivers WHERE deliveryID = ?";
         String updateQuery = "UPDATE delivers SET quantity = ?, price = ?, date = ? WHERE deliveryID = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement selectStmt = conn.prepareStatement(selectQuery)) {
 
-            // fetch current record
             selectStmt.setString(1, deliveryID);
             ResultSet rs = selectStmt.executeQuery();
 
             if (rs.next()) {
+                // Get current values
                 int currentQuantity = rs.getInt("quantity");
                 double currentPrice = rs.getDouble("price");
                 String currentDate = rs.getString("date");
 
-                System.out.println("UPDATE DELIVERY");
-                System.out.println("Leave blank to keep current value.");
+                // Determine final values (using sentinel values: -1 for int/double, empty for string)
+                int finalQuantity = (newQuantity == -1) ? currentQuantity : newQuantity;
+                double finalPrice = (newPrice == -1.0) ? currentPrice : newPrice;
+                String finalDate = newDate.isEmpty() ? currentDate : newDate;
 
-                System.out.print("New Quantity [" + currentQuantity + "]: ");
-                String newQtyInput = sc.nextLine();
-                int newQuantity = newQtyInput.isEmpty() ? currentQuantity : Integer.parseInt(newQtyInput);
-
-                System.out.print("New Price [" + currentPrice + "]: ");
-                String newPriceInput = sc.nextLine();
-                double newPrice = newPriceInput.isEmpty() ? currentPrice : Double.parseDouble(newPriceInput);
-
-                System.out.print("New Date [" + currentDate + "]: ");
-                String newDate = sc.nextLine();
-                if (newDate.isEmpty()) newDate = currentDate;
-
-                // perform update
+                // Perform update
                 try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
-                    updateStmt.setInt(1, newQuantity);
-                    updateStmt.setDouble(2, newPrice);
-                    updateStmt.setString(3, newDate);
+                    updateStmt.setInt(1, finalQuantity);
+                    updateStmt.setDouble(2, finalPrice);
+                    updateStmt.setString(3, finalDate);
                     updateStmt.setString(4, deliveryID);
 
                     int rows = updateStmt.executeUpdate();
                     if (rows > 0) {
-                        System.out.println("Delivery successfully updated in database!");
+                        return "✓ Delivery ID " + deliveryID + " successfully updated.";
                     } else {
-                        System.out.println("Delivery not found or not updated.");
+                        return "⚠️ Delivery not found or no changes made.";
                     }
                 }
             } else {
-                System.out.println("No delivery found with ID: " + deliveryID);
+                return "❌ No delivery found with ID: " + deliveryID;
             }
 
         } catch (SQLException e) {
-            System.err.println("Error updating delivery: " + e.getMessage());
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid input. Please enter valid numbers for quantity and price.");
+            return "❌ Error updating delivery: " + e.getMessage();
         }
     }
-    
-    // to delete a delivery record from the database
-    public static void deleteDeliveryFromDatabase() {
-        Scanner sc = new Scanner(System.in);
-        viewDeliveries();
 
-        System.out.print("\nEnter Delivery ID to delete: ");
-        String deliveryID = sc.nextLine();
+    /**
+     * Deletes a delivery record from the database.
+     * @param deliveryID The ID of the delivery to delete.
+     * @return A status message.
+     */
+    public static String deleteDeliveryFromDatabase(String deliveryID) {
+        String deleteQuery = "DELETE FROM delivers WHERE deliveryID = ?";
 
-        String deleteQuery = "DELETE FROM deliveries WHERE deliveryID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
 
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(deleteQuery)) {
+            pstmt.setString(1, deliveryID);
+            int rows = pstmt.executeUpdate();
 
-        pstmt.setString(1, deliveryID);
-        int rows = pstmt.executeUpdate();
-
-        if (rows > 0) {
-            System.out.println("✓ Delivery deleted successfully from database!");
-        } else {
-            System.out.println("No delivery found with that ID.");
-        }
-
-    } catch (SQLException e) {
-        System.err.println("Error deleting delivery: " + e.getMessage());
-    }
-}
-
-    // error handlings (safely read integer input)
-    public static int getIntInput(Scanner sc, String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                return Integer.parseInt(sc.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Try again.");
+            if (rows > 0) {
+                return "✓ Delivery ID " + deliveryID + " deleted successfully.";
+            } else {
+                return "❌ No delivery found with ID: " + deliveryID;
             }
-        }
-    }
 
-    
-    public static double getDoubleInput(Scanner sc, String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                return Double.parseDouble(sc.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid number. Try again.");
-            }
+        } catch (SQLException e) {
+            return "❌ Error deleting delivery: " + e.getMessage();
         }
     }
 }

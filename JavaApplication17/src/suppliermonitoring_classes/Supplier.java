@@ -1,14 +1,23 @@
 package suppliermonitoring_classes;
 
-import java.util.Scanner;
 import java.sql.*;
+import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Supplier {
-    private String supplierID;   // auto_increment — no need to input manually
-    private String supplierName;
-    private String address;
-    private String phoneNumber;
+    private final String supplierID;    // auto_increment — read-only after creation
+    private final String supplierName;
+    private final String address;
+    private final String phoneNumber;
 
+    /**
+     * Full constructor used when fetching from the database.
+     * @param supplierID
+     * @param supplierName
+     * @param address
+     * @param phoneNumber
+     */
     public Supplier(String supplierID, String supplierName, String address, String phoneNumber) {
         this.supplierID = supplierID;
         this.supplierName = supplierName;
@@ -16,49 +25,26 @@ public class Supplier {
         this.phoneNumber = phoneNumber;
     }
 
-    // input new data from supplier
-    public static Supplier inputSupplier() {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("\n--- ADD SUPPLIER ---");
-        System.out.print("Supplier Name: ");
-        String name = sc.nextLine();
-        System.out.print("Address: ");
-        String address = sc.nextLine();
-        System.out.print("Phone Number: ");
-        String phone = sc.nextLine();
-        return new Supplier(null, name, address, phone);
+    /**
+     * Constructor used when creating a new supplier for insertion (ID is null).
+     * @param supplierName
+     * @param address
+     * @param phoneNumber
+     */
+    public Supplier(String supplierName, String address, String phoneNumber) {
+        this(null, supplierName, address, phoneNumber);
     }
 
-    // display all infor
-    public void displayInfo() {
-        System.out.println("Supplier ID: " + supplierID);
-        System.out.println("Supplier Name: " + supplierName);
-        System.out.println("Address: " + address);
-        System.out.println("Phone Number: " + phoneNumber);
-    }
+    // --- Getters for GUI binding ---
+    public String getSupplierID() { return supplierID; }
+    public String getSupplierName() { return supplierName; }
+    public String getAddress() { return address; }
+    public String getPhoneNumber() { return phoneNumber; }
 
-    // update supplier details
-    public void updateInfo(Scanner sc) {
-        System.out.println("\n--- UPDATE SUPPLIER ---");
-        System.out.println("Leave blank to keep current value.");
 
-        System.out.print("New Name [" + supplierName + "]: ");
-        String newName = sc.nextLine();
-        if (!newName.isEmpty()) supplierName = newName;
-
-        System.out.print("New Address [" + address + "]: ");
-        String newAddress = sc.nextLine();
-        if (!newAddress.isEmpty()) address = newAddress;
-
-        System.out.print("New Phone Number [" + phoneNumber + "]: ");
-        String newPhone = sc.nextLine();
-        if (!newPhone.isEmpty()) phoneNumber = newPhone;
-
-        System.out.println("Supplier updated successfully!");
-    }
-
-    // purpose: to insert new data inside database
-    public void insertToDatabase() {
+    
+    public String insertToDatabase() {
+        // We do not insert supplierID as it is auto-incremented by the database.
         String query = "INSERT INTO supplier (full_name, address, phone_num) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -69,57 +55,57 @@ public class Supplier {
             pstmt.setString(3, phoneNumber);
             pstmt.executeUpdate();
 
-            System.out.println("Supplier successfully inserted into database.");
+            return "✓ Supplier '" + supplierName + "' successfully added.";
         } catch (SQLException e) {
-            System.err.println("Error inserting supplier: " + e.getMessage());
+            return "❌ Error inserting supplier: " + e.getMessage();
         }
     }
 
-    // purpose: if you select it all from supplier table, it will show all the data
-    public static void viewSuppliers() {
-        String query = "SELECT * FROM supplier";
+   
+    public static Vector<Vector<Object>> getAllSuppliersForTable() {
+        String query = "SELECT supplierID, full_name, address, phone_num FROM supplier";
+        
+      
+        List<List<Object>> listData = new ArrayList<>(); 
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
-            System.out.println("SUPPLIERS IN DATABASE");
-
-            boolean hasResults = false;
             while (rs.next()) {
-                hasResults = true;
-                String supplierID = rs.getString("supplierID");
-                String fullName = rs.getString("full_name");
-                String address = rs.getString("address");
-                String phone = rs.getString("phone_num");
-
-                System.out.println("\nSupplier ID: " + supplierID);
-                System.out.println("Supplier Name: " + fullName);
-                System.out.println("Address: " + address);
-                System.out.println("Phone Number: " + phone);
+                List<Object> row = new ArrayList<>();
+                row.add(rs.getString("supplierID"));
+                row.add(rs.getString("full_name"));
+                row.add(rs.getString("address"));
+                row.add(rs.getString("phone_num"));
+                listData.add(row);
             }
-
-            if (!hasResults) {
-                System.out.println("No suppliers found in the database.");
-            }
-
         } catch (SQLException e) {
-            System.err.println("Error retrieving suppliers: " + e.getMessage());
+            System.err.println("Error retrieving suppliers for table: " + e.getMessage());
         }
+        
+        // Convert the internal List structure back to the required Vector structure
+        Vector<Vector<Object>> tableData = new Vector<>();
+        for (List<Object> listRow : listData) {
+            tableData.add(new Vector<>(listRow)); 
+        }
+
+        return tableData;
     }
 
-    // purpose: to update existing data inside database
-    public static void updateSupplierInDatabase() {
-        Scanner sc = new Scanner(System.in);
-        viewSuppliers();
-
-        System.out.print("\nEnter Supplier ID to update: ");
-        String supplierID = sc.nextLine();
-
-        String selectQuery = "SELECT * FROM supplier WHERE supplierID = ?"; 
+    /**
+     * Updates an existing supplier record in the database.If a new parameter is empty, the existing value is retained.
+     * * @param supplierID The ID of the supplier to update.
+     * @param supplierID
+     * @param newName The new name (or empty string to keep current).
+     * @param newAddress The new address (or empty string to keep current).
+     * @param newPhone The new phone number (or empty string to keep current).
+     * @return A status message.
+     */
+    public static String updateSupplierInDatabase(String supplierID, String newName, String newAddress, String newPhone) {
+        String selectQuery = "SELECT full_name, address, phone_num FROM supplier WHERE supplierID = ?";
         String updateQuery = "UPDATE supplier SET full_name = ?, address = ?, phone_num = ? WHERE supplierID = ?";
-        
-        //connection in databaseconnection.java
+
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement selectStmt = conn.prepareStatement(selectQuery)) {
 
@@ -127,98 +113,60 @@ public class Supplier {
             ResultSet rs = selectStmt.executeQuery();
 
             if (rs.next()) {
-                String currentName = rs.getString("full_name");
-                String currentAddress = rs.getString("address");
-                String currentPhone = rs.getString("phone_num");
-
-                System.out.println("UPDATE SUPPLIER");
-                System.out.println("Leave blank to keep current value.");
-
-                System.out.print("New Name [" + currentName + "]: ");
-                String newName = sc.nextLine();
-                if (newName.isEmpty()) newName = currentName;
-
-                System.out.print("New Address [" + currentAddress + "]: ");
-                String newAddress = sc.nextLine();
-                if (newAddress.isEmpty()) newAddress = currentAddress;
-
-                System.out.print("New Phone Number [" + currentPhone + "]: ");
-                String newPhone = sc.nextLine();
-                if (newPhone.isEmpty()) newPhone = currentPhone;
+               
+                String finalName = newName.isEmpty() ? rs.getString("full_name") : newName;
+                String finalAddress = newAddress.isEmpty() ? rs.getString("address") : newAddress;
+                String finalPhone = newPhone.isEmpty() ? rs.getString("phone_num") : newPhone;
 
                 try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
-                    updateStmt.setString(1, newName);
-                    updateStmt.setString(2, newAddress);
-                    updateStmt.setString(3, newPhone);
+                    updateStmt.setString(1, finalName);
+                    updateStmt.setString(2, finalAddress);
+                    updateStmt.setString(3, finalPhone);
                     updateStmt.setString(4, supplierID);
 
                     int rows = updateStmt.executeUpdate();
                     if (rows > 0) {
-                        System.out.println("Supplier successfully updated in the database!");
+                        return "✓ Supplier ID " + supplierID + " successfully updated.";
                     } else {
-                        System.out.println("Supplier not found or not updated.");
+                       
+                        return "⚠️ Supplier not found or no changes made."; 
                     }
                 }
-
             } else {
-                System.out.println("No supplier found with ID: " + supplierID);
+                return "❌ No supplier found with ID: " + supplierID;
             }
 
         } catch (SQLException e) {
-            System.err.println("Error updating supplier: " + e.getMessage());
+            return "❌ Error updating supplier: " + e.getMessage();
         }
     }
-    
-    // purpose: delete a supplier from the database
-    public static void deleteSupplierFromDatabase() {
-        Scanner sc = new Scanner(System.in);
-        viewSuppliers(); // show all suppliers first
 
-        System.out.print("\nEnter the Supplier ID you want to delete: ");
-        String supplierID = sc.nextLine();
-
-        String checkQuery = "SELECT * FROM supplier WHERE supplierID = ?"; // a query for database 
+    /**
+     * Deletes a supplier record from the database.
+     * @param supplierID The ID of the supplier to delete.
+     * @return A status message.
+     */
+    public static String deleteSupplierFromDatabase(String supplierID) {
         String deleteQuery = "DELETE FROM supplier WHERE supplierID = ?";
 
-    // connection in database connection.java
-    try (Connection conn = DatabaseConnection.getConnection();
-         PreparedStatement checkStmt = conn.prepareStatement(checkQuery)) {
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery)) {
 
-        checkStmt.setString(1, supplierID);
-        ResultSet rs = checkStmt.executeQuery();
-
-        if (!rs.next()) {
-            System.out.println("Supplier ID not found in the database.");
-            return;
-        }
-
-        // confirm deletion
-        System.out.println("\nSupplier to delete:");
-        System.out.println("Name: " + rs.getString("full_name"));
-        System.out.println("Address: " + rs.getString("address"));
-        System.out.println("Phone: " + rs.getString("phone_num"));
-        System.out.print("\nAre you sure you want to delete this supplier? (y/n): ");
-        String confirm = sc.nextLine();
-
-        if (!confirm.equalsIgnoreCase("y")) {
-            System.out.println("Deletion cancelled.");
-            return;
-        }
-
-        // proceed with deletion
-        try (PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery)) {
             deleteStmt.setString(1, supplierID);
             int rowsDeleted = deleteStmt.executeUpdate();
 
             if (rowsDeleted > 0) {
-                System.out.println("Supplier successfully deleted from the database!");
+                return "✓ Supplier ID " + supplierID + " successfully deleted.";
             } else {
-                System.out.println("No supplier deleted. Please check the Supplier ID.");
+                return "❌ Supplier ID " + supplierID + " not found.";
             }
-        }
 
-    } catch (SQLException e) {
-        System.err.println("Error deleting supplier: " + e.getMessage());
+        } catch (SQLException e) {
+            // Catches foreign key constraint errors if this supplier is still linked to a delivery
+            if (e.getErrorCode() == 1451) { // MySQL error code for foreign key constraint failure
+                return "❌ Cannot delete supplier: Still linked to one or more deliveries.";
+            }
+            return "❌ Error deleting supplier: " + e.getMessage();
         }
     }
 }

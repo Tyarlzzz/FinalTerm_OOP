@@ -2,15 +2,20 @@ package suppliermonitoring_classes;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Vector;
 
 public class Main {
     
+ 
     private static final ArrayList<Supplier> suppliers = new ArrayList<>();
     private static final ArrayList<Items> items = new ArrayList<>();
     private static final ArrayList<Delivers> deliveries = new ArrayList<>();
     private static final Scanner sc = new Scanner(System.in);
     
     public static void main(String[] args) {
+        // Test database connection at startup
+        DatabaseConnection.getConnection(); 
+
         boolean running = true;
 
         // switch case for choosing options (to choose which module to manage)
@@ -36,29 +41,98 @@ public class Main {
                 default -> System.out.println("Invalid choice. Please try again.");
             }
         }
+        // Ensure the database connection is closed when the application exits
+        DatabaseConnection.closeConnection(); 
         sc.close();
     }
     
-    // purpose: to print a section header (for console only)
+    // utility to print a section header
     private static void printHeader(String title) {
-        System.out.println("========================================");
-        System.out.println("      " + title);
+        System.out.println("\n========================================");
+        System.out.println("       " + title);
         System.out.println("========================================");
     }
 
-    // error handling (it validates user input to ensure number lang ang pwede
+    // utility for validating integer input
     private static int getIntInput(String prompt) {
         while (true) {
             System.out.print(prompt);
             try {
                 return Integer.parseInt(sc.nextLine().trim());
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number.");
+                System.out.println("Invalid input. Please enter a whole number.");
             }
         }
     }
+    
+    // utility for getting string input (cannot be empty)
+    private static String getStringInput(String prompt, boolean allowEmpty) {
+        String input;
+        while (true) {
+            System.out.print(prompt);
+            input = sc.nextLine().trim();
+            if (allowEmpty || !input.isEmpty()) {
+                return input;
+            }
+            System.out.println("Input cannot be empty. Please try again.");
+        }
+    }
 
-    // switch case for choosing options (add, view, update, delete)
+    // utility for getting double input
+    private static double getDoubleInput(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            try {
+                return Double.parseDouble(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid decimal number (e.g., 99.99).");
+            }
+        }
+    }
+    
+ 
+    private static void printTable(String title, Vector<Vector<Object>> data, Vector<String> columnNames) {
+        System.out.println("\n--- " + title + " ---");
+        if (data.isEmpty()) {
+            System.out.println("No records found.");
+            return;
+        }
+
+      
+        int[] widths = new int[columnNames.size()];
+        for (int i = 0; i < columnNames.size(); i++) {
+            widths[i] = columnNames.get(i).length();
+        }
+        for (Vector<Object> row : data) {
+            for (int i = 0; i < row.size(); i++) {
+                widths[i] = Math.max(widths[i], row.get(i).toString().length());
+            }
+        }
+
+  
+        StringBuilder header = new StringBuilder("|");
+        StringBuilder separator = new StringBuilder("+");
+        for (int i = 0; i < columnNames.size(); i++) {
+            header.append(String.format(" %-" + widths[i] + "s |", columnNames.get(i)));
+            separator.append("-".repeat(widths[i] + 2)).append("+");
+        }
+
+        System.out.println(separator);
+        System.out.println(header);
+        System.out.println(separator);
+
+ 
+        for (Vector<Object> row : data) {
+            StringBuilder rowStr = new StringBuilder("|");
+            for (int i = 0; i < row.size(); i++) {
+                rowStr.append(String.format(" %-" + widths[i] + "s |", row.get(i).toString()));
+            }
+            System.out.println(rowStr);
+        }
+        System.out.println(separator);
+    }
+
+
     private static void manageSuppliers() {
         boolean back = false;
         while (!back) {
@@ -82,27 +156,44 @@ public class Main {
         }
     }
 
-    // calling the method to insert new data in database
     private static void addSupplier() {
-        Supplier s = Supplier.inputSupplier();
-        suppliers.add(s);
-        s.insertToDatabase(); 
-        System.out.println("Supplier added successfully!");
+        printHeader("ADD NEW SUPPLIER");
+        String name = getStringInput("Enter Supplier Name: ", false);
+        String address = getStringInput("Enter Address: ", false);
+        String phone = getStringInput("Enter Phone Number: ", false);
+
+        Supplier s = new Supplier(name, address, phone);
+        String result = s.insertToDatabase();
+        System.out.println(result);
     }
 
     private static void viewSuppliers() {
-        Supplier.viewSuppliers(); // calling the method from supplier class to view data from our database
+        Vector<Vector<Object>> data = Supplier.getAllSuppliersForTable();
+        Vector<String> headers = new Vector<>(java.util.Arrays.asList("ID", "Name", "Address", "Phone"));
+        printTable("All Suppliers", data, headers);
     }
 
     private static void updateSupplier() {
-       Supplier.updateSupplierInDatabase(); // calling the method from supplier class to update old data from our database
+        printHeader("UPDATE SUPPLIER");
+        String id = getStringInput("Enter Supplier ID to update: ", false);
+        
+        System.out.println("Enter new details (leave empty to keep current value):");
+        String newName = getStringInput("New Name: ", true);
+        String newAddress = getStringInput("New Address: ", true);
+        String newPhone = getStringInput("New Phone Number: ", true);
+
+        String result = Supplier.updateSupplierInDatabase(id, newName, newAddress, newPhone);
+        System.out.println(result);
     }
 
     private static void deleteSupplier() {
-        Supplier.deleteSupplierFromDatabase(); // calling the method from supplier class to delete data from our database
+        printHeader("DELETE SUPPLIER");
+        String id = getStringInput("Enter Supplier ID to delete: ", false);
+        String result = Supplier.deleteSupplierFromDatabase(id);
+        System.out.println(result);
     }
     
-    // this method handles item management option 
+
     private static void manageItems() {
         boolean back = false;
         while (!back) {
@@ -126,30 +217,44 @@ public class Main {
         }
     }
 
-    // calling the method to insert new data into database
     private static void addItem() {
-        Items i = Items.inputItem();      
-        items.add(i);                     
-        i.insertToDatabase_Item();        
-        System.out.println("Item/s added successfully!");
+        printHeader("ADD NEW ITEM");
+        int code = getIntInput("Enter Item Code (number): ");
+        String name = getStringInput("Enter Item Name: ", false);
+        String category = getStringInput("Enter Item Category: ", false);
+        
+        // itemID is null on creation, DB handles generation.
+        Items i = new Items(null, code, name, category); 
+        String result = i.insertToDatabase_Item();
+        System.out.println(result);
     }
 
-    // calling the method to view data sa loob ng items
     private static void viewItems() {
-         Items.viewItems();
+        Vector<Vector<Object>> data = Items.getAllItemsForTable();
+        Vector<String> headers = new Vector<>(java.util.Arrays.asList("ID", "Code", "Name", "Category"));
+        printTable("All Items", data, headers);
     }
     
-    // calling the method to update old data inside the database
     private static void updateItem() {
-        Items.updateItemInDatabase();
+        printHeader("UPDATE ITEM");
+        String id = getStringInput("Enter Item ID to update: ", false);
+        
+        System.out.println("Enter new details (leave empty to keep current value):");
+        String newName = getStringInput("New Name: ", true);
+        String newCategory = getStringInput("New Category: ", true);
+
+        String result = Items.updateItemInDatabase(id, newName, newCategory);
+        System.out.println(result);
     }
     
-    // calling the method to delete an item from database
     private static void deleteItem() {
-      Items.deleteItemFromDatabase();
+        printHeader("DELETE ITEM");
+        String id = getStringInput("Enter Item ID to delete: ", false);
+        String result = Items.deleteItemFromDatabase(id);
+        System.out.println(result);
     }
 
-    // handles delivery management options
+    // --- DELIVERY MANAGEMENT ---
     private static void manageDeliveries() {
         boolean back = false;
         while (!back) {
@@ -173,39 +278,55 @@ public class Main {
         }
     }
 
-    // insert new data into our database
     private static void addDelivery() {
-        Delivers d = Delivers.inputDelivery();      
-        deliveries.add(d);                     
-        d.insertToDatabase_Delivers();        
-        System.out.println("Delivery added successfully!");
+        printHeader("ADD NEW DELIVERY");
+        String supplierID = getStringInput("Enter Supplier ID (must exist): ", false);
+        String itemID = getStringInput("Enter Item ID (must exist): ", false);
+        String consignor = getStringInput("Enter Consignor Name: ", false);
+        String supplierName = getStringInput("Enter Supplier Name (for record): ", false);
+        String itemName = getStringInput("Enter Item Name (for record): ", false);
+        int quantity = getIntInput("Enter Quantity: ");
+        double price = getDoubleInput("Enter Price: ");
+        String date = getStringInput("Enter Date (YYYY-MM-DD): ", false);
+        
+        // deliveryID is null on creation, DB handles generation.
+        Delivers d = new Delivers(null, supplierID, itemID, consignor, supplierName, itemName, quantity, price, date); 
+        String result = d.insertToDatabase_Delivers();
+        System.out.println(result);
     }
 
-    // view all deliveries from the database
     private static void viewDeliveries() {
-        Delivers.viewDeliveries();
+        Vector<Vector<Object>> data = Delivers.getAllDeliveriesForTable();
+        Vector<String> headers = new Vector<>(java.util.Arrays.asList("Delivery ID", "Supplier ID", "Item ID", "Consignor", "Supplier Name", "Item Name", "Qty", "Price", "Date"));
+        printTable("All Deliveries", data, headers);
     }
 
-    // updates old delivery data inside the database
     private static void updateDelivery() {
-       Delivers.updateDeliveryInDatabase();
+        printHeader("UPDATE DELIVERY");
+        String id = getStringInput("Enter Delivery ID to update: ", false);
+        
+        System.out.println("Enter new details (leave empty/0/-1.0 to keep current value):");
+        int newQuantity = getIntInput("New Quantity (Enter -1 to skip): ");
+        double newPrice = getDoubleInput("New Price (Enter -1.0 to skip): ");
+        String newDate = getStringInput("New Date (YYYY-MM-DD) (leave empty to skip): ", true);
+
+        String result = Delivers.updateDeliveryInDatabase(id, newQuantity, newPrice, newDate);
+        System.out.println(result);
     }
     
-    //deletes a delivery record from the database
+    // FIXED: The original code incorrectly called updateDeliveryInDatabase here.
     private static void deleteDelivery() {
-        Delivers.updateDeliveryInDatabase();
+        printHeader("DELETE DELIVERY");
+        String id = getStringInput("Enter Delivery ID to delete: ", false);
+        String result = Delivers.deleteDeliveryFromDatabase(id);
+        System.out.println(result);
     }
 
     private static void displayAllRecords() {
         printHeader("ALL RECORDS");
 
-        System.out.println("\nITEMS");
         viewItems();
-
-         System.out.println("\nSUPPLIERS");
         viewSuppliers();
-        
-        System.out.println("\nDELIVERIES");
         viewDeliveries();
 
         System.out.println("\n========================================");
