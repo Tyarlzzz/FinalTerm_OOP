@@ -2,6 +2,7 @@ package suppliermonitoring_classes;
 
 import java.sql.*;
 import java.util.Vector;
+<<<<<<< Updated upstream
 import java.util.List;
 import java.util.ArrayList;
 
@@ -17,6 +18,17 @@ public class Items {
      * @param code
      * @param name
      * @param category
+=======
+
+public class Items {
+    private String itemID;
+    private int code;
+    private String name;
+    private String category;
+
+    /**
+     * Constructor used when creating a new item for insertion or fetching from DB.
+>>>>>>> Stashed changes
      */
     public Items(String itemID, int code, String name, String category) {
         this.itemID = itemID;
@@ -54,28 +66,47 @@ public class Items {
         }
     }
 
+<<<<<<< Updated upstream
     public static Vector<Vector<Object>> getAllItemsForTable() {
         String query = "SELECT itemID, code, name, category FROM item";
         
         // Use modern List/ArrayList internally to avoid the obsolete collection warning
         List<List<Object>> listData = new ArrayList<>(); 
+=======
+    /**
+     * Retrieves all items and formats the data for a JTable model.
+     * @return Vector of Vectors containing all item data.
+     */
+    public static Vector<Vector<Object>> getAllItemsForTable() {
+        String query = "SELECT itemID, code, name, category FROM item";
+        Vector<Vector<Object>> tableData = new Vector<>();
+>>>>>>> Stashed changes
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
+<<<<<<< Updated upstream
                 // Use ArrayList for the row data
                 List<Object> row = new ArrayList<>();
+=======
+                Vector<Object> row = new Vector<>();
+>>>>>>> Stashed changes
                 row.add(rs.getString("itemID"));
                 row.add(rs.getInt("code"));
                 row.add(rs.getString("name"));
                 row.add(rs.getString("category"));
+<<<<<<< Updated upstream
                 listData.add(row);
+=======
+                tableData.add(row);
+>>>>>>> Stashed changes
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving items for table: " + e.getMessage());
         }
+<<<<<<< Updated upstream
         
      
         Vector<Vector<Object>> tableData = new Vector<>();
@@ -84,6 +115,8 @@ public class Items {
             tableData.add(new Vector<>(listRow)); 
         }
 
+=======
+>>>>>>> Stashed changes
         return tableData;
     }
 
@@ -108,6 +141,7 @@ public class Items {
                 return "❌ Item ID " + itemID + " not found.";
             }
             
+<<<<<<< Updated upstream
 
             String currentName = rs.getString("name");
             String currentCategory = rs.getString("category");
@@ -117,6 +151,17 @@ public class Items {
             String finalCategory = newCategory.isEmpty() ? currentCategory : newCategory;
             
    
+=======
+            // Get current values
+            String currentName = rs.getString("name");
+            String currentCategory = rs.getString("category");
+            
+            // Determine final values
+            String finalName = newName.isEmpty() ? currentName : newName;
+            String finalCategory = newCategory.isEmpty() ? currentCategory : newCategory;
+            
+            // Perform update
+>>>>>>> Stashed changes
             try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
                 updateStmt.setString(1, finalName);
                 updateStmt.setString(2, finalCategory);

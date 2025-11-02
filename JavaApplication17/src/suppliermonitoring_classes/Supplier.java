@@ -24,6 +24,7 @@ public class Supplier {
         this.address = address;
         this.phoneNumber = phoneNumber;
     }
+<<<<<<< Updated upstream
 
     /**
      * Constructor used when creating a new supplier for insertion (ID is null).
@@ -32,6 +33,9 @@ public class Supplier {
      * @param phoneNumber
      */
     public Supplier(String supplierName, String address, String phoneNumber) {
+=======
+public Supplier(String supplierName, String address, String phoneNumber) {
+>>>>>>> Stashed changes
         this(null, supplierName, address, phoneNumber);
     }
 
@@ -42,9 +46,17 @@ public class Supplier {
     public String getPhoneNumber() { return phoneNumber; }
 
 
+<<<<<<< Updated upstream
     
     public String insertToDatabase() {
         // We do not insert supplierID as it is auto-incremented by the database.
+=======
+    /**
+     * Inserts the current Supplier object's data into the database.
+     * @return A status message (success or error).
+     */
+    public String insertToDatabase() {
+>>>>>>> Stashed changes
         String query = "INSERT INTO supplier (full_name, address, phone_num) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -61,23 +73,38 @@ public class Supplier {
         }
     }
 
+<<<<<<< Updated upstream
    
     public static Vector<Vector<Object>> getAllSuppliersForTable() {
         String query = "SELECT supplierID, full_name, address, phone_num FROM supplier";
         
       
         List<List<Object>> listData = new ArrayList<>(); 
+=======
+    /**
+     * Retrieves all suppliers and formats the data for a JTable model.
+     * @return Vector of Vectors containing all supplier data.
+     */
+    public static Vector<Vector<Object>> getAllSuppliersForTable() {
+        String query = "SELECT supplierID, full_name, address, phone_num FROM supplier";
+        Vector<Vector<Object>> tableData = new Vector<>();
+>>>>>>> Stashed changes
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
+<<<<<<< Updated upstream
                 List<Object> row = new ArrayList<>();
+=======
+                Vector<Object> row = new Vector<>();
+>>>>>>> Stashed changes
                 row.add(rs.getString("supplierID"));
                 row.add(rs.getString("full_name"));
                 row.add(rs.getString("address"));
                 row.add(rs.getString("phone_num"));
+<<<<<<< Updated upstream
                 listData.add(row);
             }
         } catch (SQLException e) {
@@ -90,10 +117,19 @@ public class Supplier {
             tableData.add(new Vector<>(listRow)); 
         }
 
+=======
+                tableData.add(row);
+            }
+        } catch (SQLException e) {
+            // In a GUI, an empty list might be returned, and the error logged or shown in a dialog
+            System.err.println("Error retrieving suppliers for table: " + e.getMessage());
+        }
+>>>>>>> Stashed changes
         return tableData;
     }
 
     /**
+<<<<<<< Updated upstream
      * Updates an existing supplier record in the database.If a new parameter is empty, the existing value is retained.
      * * @param supplierID The ID of the supplier to update.
      * @param supplierID
@@ -103,6 +139,17 @@ public class Supplier {
      * @return A status message.
      */
     public static String updateSupplierInDatabase(String supplierID, String newName, String newAddress, String newPhone) {
+=======
+     * Updates an existing supplier record in the database.
+     * @param supplierID The ID of the supplier to update.
+     * @param newName The new name (must be a valid string, not empty).
+     * @param newAddress The new address.
+     * @param newPhone The new phone number.
+     * @return A status message.
+     */
+    public static String updateSupplierInDatabase(String supplierID, String newName, String newAddress, String newPhone) {
+        // 1. Fetch current data to handle blank inputs from GUI
+>>>>>>> Stashed changes
         String selectQuery = "SELECT full_name, address, phone_num FROM supplier WHERE supplierID = ?";
         String updateQuery = "UPDATE supplier SET full_name = ?, address = ?, phone_num = ? WHERE supplierID = ?";
 
@@ -113,7 +160,11 @@ public class Supplier {
             ResultSet rs = selectStmt.executeQuery();
 
             if (rs.next()) {
+<<<<<<< Updated upstream
                
+=======
+                // Determine final values (use new input if provided, otherwise keep current DB value)
+>>>>>>> Stashed changes
                 String finalName = newName.isEmpty() ? rs.getString("full_name") : newName;
                 String finalAddress = newAddress.isEmpty() ? rs.getString("address") : newAddress;
                 String finalPhone = newPhone.isEmpty() ? rs.getString("phone_num") : newPhone;
@@ -128,8 +179,12 @@ public class Supplier {
                     if (rows > 0) {
                         return "✓ Supplier ID " + supplierID + " successfully updated.";
                     } else {
+<<<<<<< Updated upstream
                        
                         return "⚠️ Supplier not found or no changes made."; 
+=======
+                        return "⚠️ Supplier not found or no changes made.";
+>>>>>>> Stashed changes
                     }
                 }
             } else {
@@ -162,10 +217,13 @@ public class Supplier {
             }
 
         } catch (SQLException e) {
+<<<<<<< Updated upstream
             // Catches foreign key constraint errors if this supplier is still linked to a delivery
             if (e.getErrorCode() == 1451) { // MySQL error code for foreign key constraint failure
                 return "❌ Cannot delete supplier: Still linked to one or more deliveries.";
             }
+=======
+>>>>>>> Stashed changes
             return "❌ Error deleting supplier: " + e.getMessage();
         }
     }
