@@ -9,6 +9,7 @@ public class DatabaseConnection {
     private static final String PASSWORD = "ADMIN_@yoni0929"; // lagay ung own password nyo sa database
                                                               // then wag na i push ulit to sa github, since iba iba tayo password
     private static Connection connection = null;
+    
 
     public static Connection getConnection() {
         try {
