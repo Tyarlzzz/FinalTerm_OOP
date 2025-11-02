@@ -579,51 +579,54 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" attributes="0">
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Group type="102" attributes="0">
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
-                                              <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
-                                              <Component id="jLabel6" alignment="0" min="-2" max="-2" attributes="0"/>
-                                              <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
-                                              <Component id="DeliverIDtxt" alignment="0" min="-2" pref="252" max="-2" attributes="0"/>
-                                              <Component id="jLabel18" alignment="0" min="-2" max="-2" attributes="0"/>
-                                              <Component id="jLabel17" alignment="0" min="-2" max="-2" attributes="0"/>
-                                              <Component id="jLabel19" alignment="0" min="-2" max="-2" attributes="0"/>
-                                              <Component id="jLabel20" alignment="0" min="-2" max="-2" attributes="0"/>
-                                              <Component id="quantitxt" alignment="0" min="-2" pref="251" max="-2" attributes="0"/>
-                                              <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                                                  <Component id="datetxt" alignment="0" pref="251" max="32767" attributes="0"/>
-                                                  <Component id="pricetxt" alignment="0" max="32767" attributes="0"/>
-                                              </Group>
-                                              <Component id="SupIdDropBox" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
-                                              <Component id="ItemIDSupBox" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
-                                              <Component id="Consignortxt" alignment="0" min="-2" pref="251" max="-2" attributes="0"/>
-                                              <Group type="102" alignment="0" attributes="0">
-                                                  <Component id="saveDeliBtn" min="-2" pref="85" max="-2" attributes="0"/>
-                                                  <EmptySpace max="-2" attributes="0"/>
-                                                  <Component id="updDeliBtn" min="-2" pref="84" max="-2" attributes="0"/>
-                                                  <EmptySpace max="-2" attributes="0"/>
-                                                  <Component id="DeleteDeliBtn" min="-2" pref="86" max="-2" attributes="0"/>
-                                              </Group>
-                                              <Component id="SuppNameDBox" min="-2" pref="251" max="-2" attributes="0"/>
-                                              <Component id="ItemNameBox" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
-                                          </Group>
-                                          <EmptySpace max="32767" attributes="0"/>
-                                          <Component id="jScrollPane2" min="-2" pref="912" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="Pricnetxt" alignment="0" min="-2" pref="252" max="-2" attributes="0"/>
+                                          <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel6" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="Datetxt" alignment="0" min="-2" pref="251" max="-2" attributes="0"/>
+                                          <Component id="quantitytxt" alignment="1" min="-2" pref="251" max="-2" attributes="0"/>
                                       </Group>
-                                      <Group type="102" attributes="0">
-                                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="32767" attributes="0"/>
-                                          <Component id="expDeliBtn" min="-2" pref="120" max="-2" attributes="0"/>
+                                      <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="DeliverIDtxt" alignment="0" min="-2" pref="252" max="-2" attributes="0"/>
+                                      <Component id="Consignortxt" alignment="0" min="-2" pref="252" max="-2" attributes="0"/>
+                                      <Component id="jTextField2" alignment="0" min="-2" pref="251" max="-2" attributes="0"/>
+                                      <Component id="jLabel18" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel17" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel19" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel20" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jTextField3" alignment="0" min="-2" pref="251" max="-2" attributes="0"/>
+                                      <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                                          <Component id="jTextField5" alignment="0" pref="251" max="32767" attributes="0"/>
+                                          <Component id="jTextField4" alignment="0" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
-                                  <EmptySpace min="-2" pref="72" max="-2" attributes="0"/>
+                                  <EmptySpace max="32767" attributes="0"/>
+                                  <Component id="jScrollPane2" min="-2" pref="912" max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" attributes="0">
-                                  <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="32767" attributes="0"/>
+                                  <Component id="expDeliBtn" min="-2" pref="120" max="-2" attributes="0"/>
                               </Group>
                           </Group>
+                          <EmptySpace min="-2" pref="72" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="saveDeliBtn" min="-2" pref="85" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="updDeliBtn" min="-2" pref="84" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="DeleteDeliBtn" min="-2" pref="86" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -642,51 +645,51 @@
                               </Group>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jScrollPane2" alignment="0" min="-2" pref="541" max="-2" attributes="0"/>
-                              <Group type="102" alignment="0" attributes="0">
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Group type="102" attributes="0">
                                   <Component id="DeliverIDtxt" min="-2" pref="31" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel3" min="-2" pref="16" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="SupIdDropBox" min="-2" pref="30" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                                  <Component id="Consignortxt" min="-2" pref="32" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel4" min="-2" pref="16" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="ItemIDSupBox" min="-2" pref="30" max="-2" attributes="0"/>
+                                  <Component id="Pricnetxt" min="-2" pref="34" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel5" min="-2" pref="16" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="Consignortxt" min="-2" pref="32" max="-2" attributes="0"/>
+                                  <Component id="quantitytxt" min="-2" pref="32" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel6" min="-2" pref="16" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="SuppNameDBox" min="-2" pref="30" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Component id="Datetxt" min="-2" pref="30" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel18" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
-                                  <Component id="ItemNameBox" min="-2" pref="30" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="jTextField2" min="-2" pref="33" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel20" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="quantitxt" min="-2" pref="35" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                                  <Component id="jTextField3" min="-2" pref="35" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="pricetxt" min="-2" pref="33" max="-2" attributes="0"/>
+                                  <Component id="jTextField4" min="-2" pref="33" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel17" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="datetxt" min="-2" pref="35" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="3" attributes="0">
-                                      <Component id="saveDeliBtn" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
-                                      <Component id="updDeliBtn" alignment="3" min="-2" pref="31" max="-2" attributes="0"/>
-                                      <Component id="DeleteDeliBtn" alignment="3" min="-2" pref="31" max="-2" attributes="0"/>
-                                  </Group>
+                                  <Component id="jTextField5" min="-2" pref="35" max="-2" attributes="0"/>
                               </Group>
+                              <Component id="jScrollPane2" max="32767" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="13" max="32767" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="saveDeliBtn" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
+                              <Component id="updDeliBtn" alignment="3" min="-2" pref="31" max="-2" attributes="0"/>
+                              <Component id="DeleteDeliBtn" alignment="3" min="-2" pref="31" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace pref="9" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -774,6 +777,15 @@
                 </Component>
                 <Component class="javax.swing.JTextField" name="Consignortxt">
                 </Component>
+                <Component class="javax.swing.JTextField" name="Pricnetxt">
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="PricnetxtActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JTextField" name="quantitytxt">
+                </Component>
+                <Component class="javax.swing.JTextField" name="Datetxt">
+                </Component>
                 <Component class="javax.swing.JButton" name="saveDeliBtn">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="SAVE"/>
@@ -828,11 +840,16 @@
                     <Property name="text" type="java.lang.String" value="Supplier Full Name"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JTextField" name="quantitxt">
+                <Component class="javax.swing.JTextField" name="jTextField2">
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTextField2ActionPerformed"/>
+                  </Events>
                 </Component>
-                <Component class="javax.swing.JTextField" name="pricetxt">
+                <Component class="javax.swing.JTextField" name="jTextField3">
                 </Component>
-                <Component class="javax.swing.JTextField" name="datetxt">
+                <Component class="javax.swing.JTextField" name="jTextField4">
+                </Component>
+                <Component class="javax.swing.JTextField" name="jTextField5">
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel17">
                   <Properties>
@@ -858,66 +875,6 @@
                   <Properties>
                     <Property name="text" type="java.lang.String" value="EXPORT"/>
                   </Properties>
-                </Component>
-                <Component class="javax.swing.JComboBox" name="SupIdDropBox">
-                  <Properties>
-                    <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                      <StringArray count="4">
-                        <StringItem index="0" value="Item 1"/>
-                        <StringItem index="1" value="Item 2"/>
-                        <StringItem index="2" value="Item 3"/>
-                        <StringItem index="3" value="Item 4"/>
-                      </StringArray>
-                    </Property>
-                  </Properties>
-                  <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
-                  </AuxValues>
-                </Component>
-                <Component class="javax.swing.JComboBox" name="ItemIDSupBox">
-                  <Properties>
-                    <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                      <StringArray count="4">
-                        <StringItem index="0" value="Item 1"/>
-                        <StringItem index="1" value="Item 2"/>
-                        <StringItem index="2" value="Item 3"/>
-                        <StringItem index="3" value="Item 4"/>
-                      </StringArray>
-                    </Property>
-                  </Properties>
-                  <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
-                  </AuxValues>
-                </Component>
-                <Component class="javax.swing.JComboBox" name="SuppNameDBox">
-                  <Properties>
-                    <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                      <StringArray count="4">
-                        <StringItem index="0" value="Item 1"/>
-                        <StringItem index="1" value="Item 2"/>
-                        <StringItem index="2" value="Item 3"/>
-                        <StringItem index="3" value="Item 4"/>
-                      </StringArray>
-                    </Property>
-                  </Properties>
-                  <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
-                  </AuxValues>
-                </Component>
-                <Component class="javax.swing.JComboBox" name="ItemNameBox">
-                  <Properties>
-                    <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                      <StringArray count="4">
-                        <StringItem index="0" value="Item 1"/>
-                        <StringItem index="1" value="Item 2"/>
-                        <StringItem index="2" value="Item 3"/>
-                        <StringItem index="3" value="Item 4"/>
-                      </StringArray>
-                    </Property>
-                  </Properties>
-                  <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
-                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
