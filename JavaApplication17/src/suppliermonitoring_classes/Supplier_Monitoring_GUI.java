@@ -465,7 +465,7 @@ private void loadAllTableData() {
         DeleteItemBtn.setText("DELETE");
         DeleteItemBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DeleteItemBtnActionPerformed(evt);
+                DltItemBtnActionPerformed(evt);
             }
         });
 
@@ -1101,7 +1101,7 @@ private void DeleteDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {
 private void DeleteItemBtnActionPerformed(java.awt.event.ActionEvent evt) {
     }//GEN-LAST:event_ExportItemBtnActionPerformed
 
-    private void DeleteItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteItemBtnActionPerformed
+    private void DltItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DltItemBtnActionPerformed
     String itemID = ItemIDtxt.getText().trim();
 
     if (itemID.isEmpty()) {
@@ -1123,7 +1123,7 @@ private void DeleteItemBtnActionPerformed(java.awt.event.ActionEvent evt) {
         
         loadItemsTable();
         clearItemFields();
-    }//GEN-LAST:event_DeleteItemBtnActionPerformed
+    }//GEN-LAST:event_DltItemBtnActionPerformed
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
         // TODO add your handling code here:
