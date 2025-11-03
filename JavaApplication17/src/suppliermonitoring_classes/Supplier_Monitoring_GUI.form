@@ -383,7 +383,6 @@
                               <Component id="Phonetxt" min="-2" pref="250" max="-2" attributes="0"/>
                               <Component id="Addresstxt" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
                               <Component id="SFullNametxt" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
-                              <Component id="SupplierIDtxt" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
                               <Component id="jLabel13" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel14" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel15" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -396,6 +395,7 @@
                                   <Component id="deleteSupBtn" min="-2" pref="80" max="-2" attributes="0"/>
                               </Group>
                               <Component id="jLabel12" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="supIDtxt" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
@@ -423,8 +423,8 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" attributes="0">
-                                  <Component id="SupplierIDtxt" min="-2" pref="30" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="supIDtxt" min="-2" pref="30" max="-2" attributes="0"/>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
                                   <Component id="jLabel14" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
                                   <Component id="SFullNametxt" min="-2" pref="30" max="-2" attributes="0"/>
@@ -499,11 +499,6 @@
                     </Component>
                   </SubComponents>
                 </Container>
-                <Component class="javax.swing.JTextField" name="SupplierIDtxt">
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="SupplierIDtxtActionPerformed"/>
-                  </Events>
-                </Component>
                 <Component class="javax.swing.JTextField" name="Addresstxt">
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="AddresstxtActionPerformed"/>
@@ -573,6 +568,8 @@
                     <Property name="text" type="java.lang.String" value="EXPORT"/>
                   </Properties>
                 </Component>
+                <Component class="javax.swing.JTextField" name="supIDtxt">
+                </Component>
               </SubComponents>
             </Container>
             <Container class="javax.swing.JPanel" name="DeliverPanel">
@@ -594,25 +591,25 @@
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Group type="103" groupAlignment="0" attributes="0">
                                           <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="Pricnetxt" alignment="0" min="-2" pref="252" max="-2" attributes="0"/>
+                                          <Component id="DlItmtxt" alignment="0" min="-2" pref="252" max="-2" attributes="0"/>
                                           <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
                                           <Component id="jLabel6" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="Datetxt" alignment="0" min="-2" pref="251" max="-2" attributes="0"/>
-                                          <Component id="quantitytxt" alignment="1" min="-2" pref="251" max="-2" attributes="0"/>
+                                          <Component id="DlSupFulNmtxt" alignment="0" min="-2" pref="251" max="-2" attributes="0"/>
+                                          <Component id="Dlconsignortxt" alignment="1" min="-2" pref="251" max="-2" attributes="0"/>
                                       </Group>
                                       <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="DeliverIDtxt" alignment="0" min="-2" pref="252" max="-2" attributes="0"/>
-                                      <Component id="Consignortxt" alignment="0" min="-2" pref="252" max="-2" attributes="0"/>
-                                      <Component id="jTextField2" alignment="0" min="-2" pref="251" max="-2" attributes="0"/>
+                                      <Component id="DlSupIDtxt" alignment="0" min="-2" pref="252" max="-2" attributes="0"/>
                                       <Component id="jLabel18" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="jLabel17" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="jLabel19" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="jLabel20" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="jTextField3" alignment="0" min="-2" pref="251" max="-2" attributes="0"/>
+                                      <Component id="Dlquantitytxt" alignment="0" min="-2" pref="251" max="-2" attributes="0"/>
                                       <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                                          <Component id="jTextField5" alignment="0" pref="251" max="32767" attributes="0"/>
-                                          <Component id="jTextField4" alignment="0" max="32767" attributes="0"/>
+                                          <Component id="Dldatetxt" alignment="0" pref="251" max="32767" attributes="0"/>
+                                          <Component id="Dlpricetxt" alignment="0" max="32767" attributes="0"/>
                                       </Group>
+                                      <Component id="tmNametxt" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
                                   </Group>
                                   <EmptySpace max="32767" attributes="0"/>
                                   <Component id="jScrollPane2" min="-2" pref="912" max="-2" attributes="0"/>
@@ -636,7 +633,7 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="updDeliBtn" min="-2" pref="84" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="DeleteDeliBtn" min="-2" pref="86" max="-2" attributes="0"/>
+                                  <Component id="DeleteDlBtn" min="-2" pref="86" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
@@ -664,35 +661,35 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel3" min="-2" pref="16" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="Consignortxt" min="-2" pref="32" max="-2" attributes="0"/>
+                                  <Component id="DlSupIDtxt" min="-2" pref="32" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel4" min="-2" pref="16" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="Pricnetxt" min="-2" pref="34" max="-2" attributes="0"/>
+                                  <Component id="DlItmtxt" min="-2" pref="34" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel5" min="-2" pref="16" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="quantitytxt" min="-2" pref="32" max="-2" attributes="0"/>
+                                  <Component id="Dlconsignortxt" min="-2" pref="32" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel6" min="-2" pref="16" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="Datetxt" min="-2" pref="30" max="-2" attributes="0"/>
+                                  <Component id="DlSupFulNmtxt" min="-2" pref="30" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel18" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jTextField2" min="-2" pref="33" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="11" max="-2" attributes="0"/>
+                                  <Component id="tmNametxt" min="-2" pref="30" max="-2" attributes="0"/>
+                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                   <Component id="jLabel20" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-                                  <Component id="jTextField3" min="-2" pref="35" max="-2" attributes="0"/>
+                                  <Component id="Dlquantitytxt" min="-2" pref="35" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jTextField4" min="-2" pref="33" max="-2" attributes="0"/>
+                                  <Component id="Dlpricetxt" min="-2" pref="33" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel17" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jTextField5" min="-2" pref="35" max="-2" attributes="0"/>
+                                  <Component id="Dldatetxt" min="-2" pref="35" max="-2" attributes="0"/>
                               </Group>
                               <Component id="jScrollPane2" max="32767" attributes="0"/>
                           </Group>
@@ -700,9 +697,9 @@
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="saveDeliBtn" alignment="3" min="-2" pref="32" max="-2" attributes="0"/>
                               <Component id="updDeliBtn" alignment="3" min="-2" pref="31" max="-2" attributes="0"/>
-                              <Component id="DeleteDeliBtn" alignment="3" min="-2" pref="31" max="-2" attributes="0"/>
+                              <Component id="DeleteDlBtn" alignment="3" min="-2" pref="31" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="9" max="32767" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -791,24 +788,24 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DeliverIDtxtActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JTextField" name="Consignortxt">
+                <Component class="javax.swing.JTextField" name="DlSupIDtxt">
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ConsignortxtActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DlSupIDtxtActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JTextField" name="Pricnetxt">
+                <Component class="javax.swing.JTextField" name="DlItmtxt">
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="PricnetxtActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DlItmtxtActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JTextField" name="quantitytxt">
+                <Component class="javax.swing.JTextField" name="Dlconsignortxt">
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="quantitytxtActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DlconsignortxtActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JTextField" name="Datetxt">
+                <Component class="javax.swing.JTextField" name="DlSupFulNmtxt">
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DatetxtActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DlSupFulNmtxtActionPerformed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JButton" name="saveDeliBtn">
@@ -827,12 +824,12 @@
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="updDeliBtnActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JButton" name="DeleteDeliBtn">
+                <Component class="javax.swing.JButton" name="DeleteDlBtn">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="DELETE"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DeleteDeliBtnActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DeleteDlBtnActionPerformed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel1">
@@ -865,24 +862,19 @@
                     <Property name="text" type="java.lang.String" value="Supplier Full Name"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JTextField" name="jTextField2">
+                <Component class="javax.swing.JTextField" name="Dlquantitytxt">
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTextField2ActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DlquantitytxtActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JTextField" name="jTextField3">
+                <Component class="javax.swing.JTextField" name="Dlpricetxt">
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTextField3ActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DlpricetxtActionPerformed"/>
                   </Events>
                 </Component>
-                <Component class="javax.swing.JTextField" name="jTextField4">
+                <Component class="javax.swing.JTextField" name="Dldatetxt">
                   <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTextField4ActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JTextField" name="jTextField5">
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jTextField5ActionPerformed"/>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="DldatetxtActionPerformed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel17">
@@ -909,6 +901,11 @@
                   <Properties>
                     <Property name="text" type="java.lang.String" value="EXPORT"/>
                   </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="tmNametxt">
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tmNametxtActionPerformed"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>

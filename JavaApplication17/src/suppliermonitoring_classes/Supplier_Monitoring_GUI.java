@@ -185,7 +185,7 @@ private void loadAllTableData() {
     }
 
     private void clearSupplierFields() {
-        SupplierIDtxt.setText("");
+        SupSupplierIDtxt.setText("");
         SFullNametxt.setText("");
         Addresstxt.setText("");
         Phonetxt.setText("");
@@ -193,12 +193,12 @@ private void loadAllTableData() {
 
     private void clearDeliveryFields() {
         DeliverIDtxt.setText("");
-        Consignortxt.setText("");
-        Pricnetxt.setText("");
-        quantitytxt.setText("");
-        Datetxt.setText("");
+        DlSupIDtxt.setText("");
+        DlItmtxt.setText("");
+        Dlconsignortxt.setText("");
+        DlSupFulNmtxt.setText("");
         jTextField2.setText(""); // Supplier ID
-        jTextField3.setText(""); // Item ID
+        Dlquantitytxt.setText(""); // Item ID
     }
 
     // --- Listener Initialization (User's original code) ---
@@ -236,7 +236,7 @@ private void loadAllTableData() {
 
                     try {
                         // Columns: 0: SupplierID, 1: SFullName, 2: Address, 3: PhoneTxt
-                        SupplierIDtxt.setText(model.getValueAt(selectedRow, 0).toString());
+                        SupSupplierIDtxt.setText(model.getValueAt(selectedRow, 0).toString());
                         SFullNametxt.setText(model.getValueAt(selectedRow, 1).toString());
                         Addresstxt.setText(model.getValueAt(selectedRow, 2).toString());
                         Phonetxt.setText(model.getValueAt(selectedRow, 3).toString());
@@ -262,11 +262,11 @@ private void loadAllTableData() {
                         // 0: DeliverID, 1: SupplierID, 2: ItemID, 3: Consignor, 6: Quantity, 7: Price, 8: Date
                         DeliverIDtxt.setText(model.getValueAt(selectedRow, 0).toString());
                         jTextField2.setText(model.getValueAt(selectedRow, 1).toString()); // SupplierID
-                        jTextField3.setText(model.getValueAt(selectedRow, 2).toString()); // ItemID
-                        Consignortxt.setText(model.getValueAt(selectedRow, 3).toString());
-                        quantitytxt.setText(model.getValueAt(selectedRow, 6).toString());
-                        Pricnetxt.setText(model.getValueAt(selectedRow, 7).toString());
-                        Datetxt.setText(model.getValueAt(selectedRow, 8).toString());
+                        Dlquantitytxt.setText(model.getValueAt(selectedRow, 2).toString()); // ItemID
+                        DlSupIDtxt.setText(model.getValueAt(selectedRow, 3).toString());
+                        Dlconsignortxt.setText(model.getValueAt(selectedRow, 6).toString());
+                        DlItmtxt.setText(model.getValueAt(selectedRow, 7).toString());
+                        DlSupFulNmtxt.setText(model.getValueAt(selectedRow, 8).toString());
                     } catch (Exception e) {
                         System.err.println("Error reading row data for Deliveries: " + e.getMessage());
                         clearDeliveryFields();
@@ -313,7 +313,6 @@ private void loadAllTableData() {
         SupplierPanel = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable3 = new javax.swing.JTable();
-        SupplierIDtxt = new javax.swing.JTextField();
         Addresstxt = new javax.swing.JTextField();
         SFullNametxt = new javax.swing.JTextField();
         Phonetxt = new javax.swing.JTextField();
@@ -326,32 +325,33 @@ private void loadAllTableData() {
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         expSupbtn = new javax.swing.JButton();
+        supIDtxt = new javax.swing.JTextField();
         DeliverPanel = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable2 = new javax.swing.JTable();
         DeliverIDtxt = new javax.swing.JTextField();
-        Consignortxt = new javax.swing.JTextField();
-        Pricnetxt = new javax.swing.JTextField();
-        quantitytxt = new javax.swing.JTextField();
-        Datetxt = new javax.swing.JTextField();
+        DlSupIDtxt = new javax.swing.JTextField();
+        DlItmtxt = new javax.swing.JTextField();
+        Dlconsignortxt = new javax.swing.JTextField();
+        DlSupFulNmtxt = new javax.swing.JTextField();
         saveDeliBtn = new javax.swing.JButton();
         updDeliBtn = new javax.swing.JButton();
-        DeleteDeliBtn = new javax.swing.JButton();
+        DeleteDlBtn = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
+        Dlquantitytxt = new javax.swing.JTextField();
+        Dlpricetxt = new javax.swing.JTextField();
+        Dldatetxt = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
         expDeliBtn = new javax.swing.JButton();
+        tmNametxt = new javax.swing.JTextField();
         jLabel21 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -578,12 +578,6 @@ private void loadAllTableData() {
         });
         jScrollPane3.setViewportView(jTable3);
 
-        SupplierIDtxt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SupplierIDtxtActionPerformed(evt);
-            }
-        });
-
         Addresstxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 AddresstxtActionPerformed(evt);
@@ -645,7 +639,6 @@ private void loadAllTableData() {
                     .addComponent(Phonetxt, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(Addresstxt, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(SFullNametxt, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(SupplierIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel13)
                     .addComponent(jLabel14)
                     .addComponent(jLabel15)
@@ -656,7 +649,8 @@ private void loadAllTableData() {
                         .addComponent(updSupplierBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteSupBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel12))
+                    .addComponent(jLabel12)
+                    .addComponent(supIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(SupplierPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 901, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -677,8 +671,8 @@ private void loadAllTableData() {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(SupplierPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(SupplierPanelLayout.createSequentialGroup()
-                        .addComponent(SupplierIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(supIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(jLabel14)
                         .addGap(5, 5, 5)
                         .addComponent(SFullNametxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -728,27 +722,27 @@ private void loadAllTableData() {
             }
         });
 
-        Consignortxt.addActionListener(new java.awt.event.ActionListener() {
+        DlSupIDtxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ConsignortxtActionPerformed(evt);
+                DlSupIDtxtActionPerformed(evt);
             }
         });
 
-        Pricnetxt.addActionListener(new java.awt.event.ActionListener() {
+        DlItmtxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                PricnetxtActionPerformed(evt);
+                DlItmtxtActionPerformed(evt);
             }
         });
 
-        quantitytxt.addActionListener(new java.awt.event.ActionListener() {
+        Dlconsignortxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                quantitytxtActionPerformed(evt);
+                DlconsignortxtActionPerformed(evt);
             }
         });
 
-        Datetxt.addActionListener(new java.awt.event.ActionListener() {
+        DlSupFulNmtxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DatetxtActionPerformed(evt);
+                DlSupFulNmtxtActionPerformed(evt);
             }
         });
 
@@ -766,10 +760,10 @@ private void loadAllTableData() {
             }
         });
 
-        DeleteDeliBtn.setText("DELETE");
-        DeleteDeliBtn.addActionListener(new java.awt.event.ActionListener() {
+        DeleteDlBtn.setText("DELETE");
+        DeleteDlBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DeleteDeliBtnActionPerformed(evt);
+                DeleteDlBtnActionPerformed(evt);
             }
         });
 
@@ -785,27 +779,21 @@ private void loadAllTableData() {
 
         jLabel6.setText("Supplier Full Name");
 
-        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+        Dlquantitytxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField2ActionPerformed(evt);
+                DlquantitytxtActionPerformed(evt);
             }
         });
 
-        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+        Dlpricetxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField3ActionPerformed(evt);
+                DlpricetxtActionPerformed(evt);
             }
         });
 
-        jTextField4.addActionListener(new java.awt.event.ActionListener() {
+        Dldatetxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField4ActionPerformed(evt);
-            }
-        });
-
-        jTextField5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField5ActionPerformed(evt);
+                DldatetxtActionPerformed(evt);
             }
         });
 
@@ -819,6 +807,12 @@ private void loadAllTableData() {
 
         expDeliBtn.setText("EXPORT");
 
+        tmNametxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tmNametxtActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout DeliverPanelLayout = new javax.swing.GroupLayout(DeliverPanel);
         DeliverPanel.setLayout(DeliverPanelLayout);
         DeliverPanelLayout.setHorizontalGroup(
@@ -830,23 +824,23 @@ private void loadAllTableData() {
                         .addGroup(DeliverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(DeliverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jLabel4)
-                                .addComponent(Pricnetxt, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(DlItmtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jLabel5)
                                 .addComponent(jLabel6)
-                                .addComponent(Datetxt, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(quantitytxt, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(DlSupFulNmtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(Dlconsignortxt, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel3)
                             .addComponent(DeliverIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(Consignortxt, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(DlSupIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel18)
                             .addComponent(jLabel17)
                             .addComponent(jLabel19)
                             .addComponent(jLabel20)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Dlquantitytxt, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(DeliverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(jTextField5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                                .addComponent(jTextField4, javax.swing.GroupLayout.Alignment.LEADING)))
+                                .addComponent(Dldatetxt, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
+                                .addComponent(Dlpricetxt, javax.swing.GroupLayout.Alignment.LEADING))
+                            .addComponent(tmNametxt, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 912, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(DeliverPanelLayout.createSequentialGroup()
@@ -864,7 +858,7 @@ private void loadAllTableData() {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(updDeliBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(DeleteDeliBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(DeleteDlBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         DeliverPanelLayout.setVerticalGroup(
@@ -885,42 +879,42 @@ private void loadAllTableData() {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Consignortxt, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(DlSupIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Pricnetxt, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(DlItmtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(quantitytxt, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(Dlconsignortxt, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Datetxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(DlSupFulNmtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel18)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(11, 11, 11)
+                        .addComponent(tmNametxt, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel20)
                         .addGap(4, 4, 4)
-                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(Dlquantitytxt, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel19)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(Dlpricetxt, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel17)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(Dldatetxt, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(DeliverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(saveDeliBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(updDeliBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(DeleteDeliBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(9, Short.MAX_VALUE))
+                    .addComponent(DeleteDlBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Deliver Record", DeliverPanel);
@@ -1026,9 +1020,9 @@ private void loadAllTableData() {
         loadTableData(ITEMS_TABLE, jTable1);
     }//GEN-LAST:event_ItemBtnActionPerformed
 
-    private void PricnetxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PricnetxtActionPerformed
+    private void DlItmtxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DlItmtxtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_PricnetxtActionPerformed
+    }//GEN-LAST:event_DlItmtxtActionPerformed
 
     private void saveDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveDeliBtnActionPerformed
   
@@ -1072,9 +1066,9 @@ private void DeleteDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {
     
     }//GEN-LAST:event_deleteSupBtnActionPerformed
 
-    private void DeleteDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteDeliBtnActionPerformed
+    private void DeleteDlBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteDlBtnActionPerformed
     
-    }//GEN-LAST:event_DeleteDeliBtnActionPerformed
+    }//GEN-LAST:event_DeleteDlBtnActionPerformed
 
     private void updItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updItemBtnActionPerformed
    String itemID = ItemIDtxt.getText().trim();
@@ -1123,15 +1117,8 @@ private void DeleteItemBtnActionPerformed(java.awt.event.ActionEvent evt) {
         
         loadItemsTable();
         clearItemFields();
+    }
     }//GEN-LAST:event_DltItemBtnActionPerformed
-
-    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField2ActionPerformed
-
-    private void SupplierIDtxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SupplierIDtxtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_SupplierIDtxtActionPerformed
 
     private void SFullNametxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SFullNametxtActionPerformed
         // TODO add your handling code here:
@@ -1145,56 +1132,63 @@ private void DeleteItemBtnActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
     }//GEN-LAST:event_DeliverIDtxtActionPerformed
 
-    private void ConsignortxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ConsignortxtActionPerformed
+    private void DlSupIDtxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DlSupIDtxtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_ConsignortxtActionPerformed
+    }//GEN-LAST:event_DlSupIDtxtActionPerformed
 
-    private void quantitytxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quantitytxtActionPerformed
+    private void DlconsignortxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DlconsignortxtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_quantitytxtActionPerformed
+    }//GEN-LAST:event_DlconsignortxtActionPerformed
 
-    private void DatetxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DatetxtActionPerformed
+    private void DlSupFulNmtxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DlSupFulNmtxtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_DatetxtActionPerformed
+    }//GEN-LAST:event_DlSupFulNmtxtActionPerformed
 
-    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+    private void DlquantitytxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DlquantitytxtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField3ActionPerformed
+    }//GEN-LAST:event_DlquantitytxtActionPerformed
 
-    private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
+    private void DlpricetxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DlpricetxtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField4ActionPerformed
+    }//GEN-LAST:event_DlpricetxtActionPerformed
 
-    private void jTextField5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField5ActionPerformed
+    private void DldatetxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DldatetxtActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField5ActionPerformed
+    }//GEN-LAST:event_DldatetxtActionPerformed
 
     private void expitembtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_expitembtnActionPerformed
      exportTableToCSV(jTable1, "Items_Export.csv"); // TODO add your handling code here:
     }//GEN-LAST:event_expitembtnActionPerformed
+
+    private void tmNametxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tmNametxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tmNametxtActionPerformed
   
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField Addresstxt;
-    private javax.swing.JTextField Consignortxt;
-    private javax.swing.JTextField Datetxt;
-    private javax.swing.JButton DeleteDeliBtn;
+    private javax.swing.JButton DeleteDlBtn;
     private javax.swing.JButton DeleteItemBtn;
     private javax.swing.JButton DeliverBtn;
     private javax.swing.JTextField DeliverIDtxt;
     private javax.swing.JPanel DeliverPanel;
+    private javax.swing.JTextField DlItmtxt;
+    private javax.swing.JTextField DlSupFulNmtxt;
+    private javax.swing.JTextField DlSupIDtxt;
+    private javax.swing.JTextField Dlconsignortxt;
+    private javax.swing.JTextField Dldatetxt;
+    private javax.swing.JTextField Dlpricetxt;
+    private javax.swing.JTextField Dlquantitytxt;
     private javax.swing.JButton ItemBtn;
     private javax.swing.JTextField ItemIDtxt;
     private javax.swing.JTextField ItemNameTxt;
     private javax.swing.JPanel ItemPanel;
     private javax.swing.JTextField ItemcategoryTxt;
     private javax.swing.JTextField Phonetxt;
-    private javax.swing.JTextField Pricnetxt;
     private javax.swing.JTextField SFullNametxt;
     private javax.swing.JButton SaveItemBtn;
     private javax.swing.JButton SaveSupBtn;
     private javax.swing.JButton SupplierBtn;
-    private javax.swing.JTextField SupplierIDtxt;
     private javax.swing.JPanel SupplierPanel;
     private javax.swing.JButton deleteSupBtn;
     private javax.swing.JButton expDeliBtn;
@@ -1231,12 +1225,9 @@ private void DeleteItemBtnActionPerformed(java.awt.event.ActionEvent evt) {
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField quantitytxt;
     private javax.swing.JButton saveDeliBtn;
+    private javax.swing.JTextField supIDtxt;
+    private javax.swing.JTextField tmNametxt;
     private javax.swing.JButton updDeliBtn;
     private javax.swing.JButton updItemBtn;
     private javax.swing.JButton updSupplierBtn;
