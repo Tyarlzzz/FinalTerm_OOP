@@ -2,11 +2,8 @@ package suppliermonitoring_classes;
 
 import java.sql.*;
 import java.util.Vector;
-<<<<<<< Updated upstream
 import java.util.List;
 import java.util.ArrayList;
-=======
->>>>>>> Stashed changes
 
 /**
  * Model class representing a Delivery record.
@@ -24,6 +21,8 @@ public class Delivers {
     private double price;
     private String date;
 
+    // Assuming DatabaseConnection class exists and has a static getConnection() method.
+
     /**
      * Constructor to initialize delivery object. Used for both creation and reading.
      */
@@ -39,7 +38,6 @@ public class Delivers {
         this.price = price;
         this.date = date;
     }
-<<<<<<< Updated upstream
 
     // --- Getter Methods ---
     public String getDeliveryID() { return deliveryID; }
@@ -62,21 +60,9 @@ public class Delivers {
     public void setQuantity(int quantity) { this.quantity = quantity; }
     public void setPrice(double price) { this.price = price; }
     public void setDate(String date) { this.date = date; }
+    // The duplicate get methods were removed here.
 
 
-=======
-    
-    // --- Getters for GUI binding (useful for display or editing) ---
-    public String getDeliveryID() { return deliveryID; }
-    public String getSupplierID() { return supplierID; }
-    public String getItemID() { return itemID; }
-    // ... other getters as needed
-
->>>>>>> Stashed changes
-    /**
-     * Inserts the current Delivery object's data into the database, including foreign key validation.
-     * @return A status message.
-     */
     public String insertToDatabase_Delivers() {
         String insertQuery = "INSERT INTO delivers (supplierID, itemID, consignor, supplier_name, item_name, quantity, price, date) "
                            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -105,7 +91,7 @@ public class Delivers {
                 }
             }
             
-            // 3. Insert record
+            // 3. Insert the delivery record
             try (PreparedStatement pstmt = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, supplierID);
                 pstmt.setString(2, itemID);
@@ -120,13 +106,10 @@ public class Delivers {
 
                 ResultSet rs = pstmt.getGeneratedKeys();
                 if (rs.next()) {
-<<<<<<< Updated upstream
-                    // Update the object's deliveryID property if it was auto-generated
+                    // Update the object's deliveryID property and return success message
                     this.deliveryID = rs.getString(1);
-                    return "✓ Delivery successfully inserted! ID: " + this.deliveryID;
-=======
-                    return "✓ Delivery successfully inserted! ID: " + rs.getInt(1);
->>>>>>> Stashed changes
+                    // Fixed syntax error (extra parenthesis removed)
+                    return ("✓ Delivery successfully inserted! ID: " + this.deliveryID);
                 } else {
                     return "✓ Delivery successfully inserted!";
                 }
@@ -143,24 +126,17 @@ public class Delivers {
      */
     public static Vector<Vector<Object>> getAllDeliveriesForTable() {
         String query = "SELECT deliveryID, supplierID, itemID, consignor, supplier_name, item_name, quantity, price, date FROM delivers";
-<<<<<<< Updated upstream
         
-        // Use modern List/ArrayList internally for better performance and to avoid the obsolete warning
-        List<List<Object>> listData = new ArrayList<>();
-=======
+        // JTable/Swing compatibility requires Vector<Vector<Object>>
         Vector<Vector<Object>> tableData = new Vector<>();
->>>>>>> Stashed changes
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-<<<<<<< Updated upstream
-                List<Object> row = new ArrayList<>();
-=======
+                // Simplified logic to use only Vector for JTable compatibility
                 Vector<Object> row = new Vector<>();
->>>>>>> Stashed changes
                 row.add(rs.getString("deliveryID"));
                 row.add(rs.getString("supplierID"));
                 row.add(rs.getString("itemID"));
@@ -170,26 +146,13 @@ public class Delivers {
                 row.add(rs.getInt("quantity"));
                 row.add(rs.getDouble("price"));
                 row.add(rs.getString("date"));
-<<<<<<< Updated upstream
-                listData.add(row);
-=======
+                
                 tableData.add(row);
->>>>>>> Stashed changes
             }
         } catch (SQLException e) {
             System.err.println("Error retrieving deliveries for table: " + e.getMessage());
         }
-<<<<<<< Updated upstream
         
-        // Convert the internal List structure back to the required Vector structure for JTable/Swing compatibility
-        Vector<Vector<Object>> tableData = new Vector<>();
-        for (List<Object> listRow : listData) {
-            // Convert each internal List row to a Vector row
-            tableData.add(new Vector<>(listRow)); 
-        }
-
-=======
->>>>>>> Stashed changes
         return tableData;
     }
 

@@ -9,261 +9,85 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.io.*;
 import java.util.Vector;
-<<<<<<< Updated upstream
-import java.util.stream.Collectors;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-
 public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
 
-=======
-
-/**
- *
- * @author Elaine (Updated by Gemini)
- *
- * This class implements the GUI for Supplier Monitoring, including event
- * handling for Item, Supplier, and Delivery records, backed by an SQLite database.
- */
-public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
-
-    // --- Database and Constants Fields ---
->>>>>>> Stashed changes
     private Connection conn;
-    // Note: You must ensure the SQLite JDBC driver is in your project's classpath
-    private final String DB_URL = "jdbc:sqlite:supplier_monitoring.db";
     private final String ITEMS_TABLE = "Items";
     private final String SUPPLIERS_TABLE = "Suppliers";
     private final String DELIVERIES_TABLE = "Deliveries";
 
-
-<<<<<<< Updated upstream
-    private void clearItemFields() {
-        ItemIDtxt.setText("");
-        itemCodeTxt.setText("");
-        ItemNameTxt.setText("");
-        ItemcategoryTxt.setText("");
-=======
-    // --- Helper Methods to Clear Fields ---
-
-    /**
-     * Helper to clear Item input fields
-     */
-    private void clearItemFields() {
-        ItemIDtxt.setText("");
-        ItemNameTxt.setText("");
-        ItemcategoryTxt.setText("");
-        itemCodeTxt.setText("");
+    public Supplier_Monitoring_GUI() {
+        initComponents();
+        connectDB();
+        loadAllTableData();
+        initListeners();
+        // Set the default tab to the Item Record panel (index 0)
+        jTabbedPane1.setSelectedIndex(0);
     }
-
-    /**
-     * Helper to clear Supplier input fields
-     */
-    private void clearSupplierFields() {
-        SupplierIDtxt.setText("");
-        SFullNametxt.setText("");
-        Addresstxt.setText("");
-        Phonetxt.setText("");
-    }
-
-    /**
-     * Helper to clear Delivery input fields
-     * Also clears jTextField2 (Supplier ID for Delivery) and jTextField3 (Item ID for Delivery)
-     */
-    private void clearDeliveryFields() {
-        DeliverIDtxt.setText("");
-        Consignortxt.setText("");
-        Pricnetxt.setText("");
-        quantitytxt.setText("");
-        Datetxt.setText("");
-        jTextField2.setText(""); // Supplier ID
-        jTextField3.setText(""); // Item ID
-    }
-
-
-    // --- Database Initialization and Connection ---
-
-    /**
-     * Establishes connection to the SQLite database and initializes tables.
-     */
-    private void connectDB() {
-        try {
-            // Loading the SQLite driver is often implicit but good practice
-            Class.forName("org.sqlite.JDBC");
-            conn = DriverManager.getConnection(DB_URL);
-            initializeDB();
-            System.out.println("Database connected and initialized.");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Database Connection Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+private void connectDB() {
+    try {
+        // Call the centralized method from the DatabaseConnection class
+        conn = DatabaseConnection.getConnection(); 
+        
+        if (conn == null) {
+             JOptionPane.showMessageDialog(this, "Failed to establish database connection.\nPlease check DatabaseConnection.java or if your MySQL server is running.", "Error", JOptionPane.ERROR_MESSAGE);
+             return;
         }
-    }
+        
+        initializeDB(); 
+        System.out.println("Database connected and initialized.");
 
-    /**
-     * Creates tables if they do not exist.
-     */
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                DatabaseConnection.closeConnection(); // Use the DAO close method
+            }
+        });
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Database Error during startup: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
+}
+
     private void initializeDB() throws SQLException {
         try (Statement stmt = conn.createStatement()) {
-            // 1. Items Table
+            // Items Table
             String createItems = "CREATE TABLE IF NOT EXISTS " + ITEMS_TABLE + " ("
                     + "ItemID TEXT PRIMARY KEY,"
                     + "ItemCode TEXT,"
                     + "ItemName TEXT,"
-                    + "Category TEXT)";
+                    + "Category TEXT);";
             stmt.execute(createItems);
 
-            // 2. Suppliers Table
+            // Suppliers Table
             String createSuppliers = "CREATE TABLE IF NOT EXISTS " + SUPPLIERS_TABLE + " ("
                     + "SupplierID TEXT PRIMARY KEY,"
-                    + "SFullName TEXT,"
+                    + "SFullName TEXT NOT NULL,"
                     + "Address TEXT,"
-                    + "PhoneTxt TEXT)";
+                    + "PhoneTxt TEXT);";
             stmt.execute(createSuppliers);
 
-            // 3. Deliveries Table
-            // Using jTextField2 as SupplierID and jTextField3 as ItemID in Deliver Record
+            // Deliveries Table (Uses foreign keys)
             String createDeliveries = "CREATE TABLE IF NOT EXISTS " + DELIVERIES_TABLE + " ("
                     + "DeliverID TEXT PRIMARY KEY,"
-                    + "SupplierID TEXT,"
-                    + "ItemID TEXT,"
+                    + "SupplierID TEXT NOT NULL,"
+                    + "ItemID TEXT NOT NULL,"
                     + "Consignor TEXT,"
-                    + "Quantity INTEGER," // Quantity should be int
-                    + "Price REAL," // Price should be real/double
-                    + "Date TEXT)";
+                    + "Quantity INTEGER,"
+                    + "Price REAL,"
+                    + "Date TEXT,"
+                    + "FOREIGN KEY(SupplierID) REFERENCES Suppliers(SupplierID) ON DELETE CASCADE,"
+                    + "FOREIGN KEY(ItemID) REFERENCES Items(ItemID) ON DELETE CASCADE);";
             stmt.execute(createDeliveries);
         }
     }
 
-
-    // --- Table Data Loading and Utilities ---
-
-    /**
-     * Loads all table data upon initialization.
-     */
-    private void loadAllTableData() {
-        loadTableData(ITEMS_TABLE, jTable1);
-        loadTableData(SUPPLIERS_TABLE, jTable3);
-        loadTableData(DELIVERIES_TABLE, jTable2);
-    }
-
-    /**
-     * Generic method to load data into a JTable using a SQL query.
-     */
-    private void loadTableData(String tableName, JTable table) {
-        if (conn == null) return;
-
-        try {
-            // For Deliveries, we perform a join to show SupplierName and ItemName
-            String query;
-            if (tableName.equals(DELIVERIES_TABLE)) {
-                // Join Deliveries with Suppliers and Items to show names in the table
-                query = "SELECT d.DeliverID, d.SupplierID, d.ItemID, d.Consignor, s.SFullName AS SupplierName, i.ItemName, d.Quantity, d.Price, d.Date "
-                        + "FROM Deliveries d "
-                        + "LEFT JOIN Suppliers s ON d.SupplierID = s.SupplierID "
-                        + "LEFT JOIN Items i ON d.ItemID = i.ItemID";
-            } else {
-                 query = "SELECT * FROM " + tableName;
-            }
-
-            PreparedStatement pst = conn.prepareStatement(query);
-            ResultSet rs = pst.executeQuery();
-            table.setModel(buildTableModel(rs));
-            rs.close();
-            pst.close();
-        } catch (Exception e) {
-            System.err.println("Error loading " + tableName + ": " + e.getMessage());
-            // This is a common error in design, so we don't show an error box for an empty table/setup issue
-        }
-    }
-
-    /**
-     * Converts a SQL ResultSet into a DefaultTableModel.
-     */
-    public static DefaultTableModel buildTableModel(ResultSet rs) throws SQLException {
-        ResultSetMetaData metaData = rs.getMetaData();
-
-        // Column names
-        Vector<String> columnNames = new Vector<>();
-        int columnCount = metaData.getColumnCount();
-        for (int column = 1; column <= columnCount; column++) {
-            columnNames.add(metaData.getColumnLabel(column));
-        }
-
-        // Data of the table
-        Vector<Vector<Object>> data = new Vector<>();
-        while (rs.next()) {
-            Vector<Object> vector = new Vector<>();
-            for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {
-                vector.add(rs.getObject(columnIndex));
-            }
-            data.add(vector);
-        }
-
-        return new DefaultTableModel(data, columnNames);
-    }
-
-
-    /**
-     * Creates new form OOP
-     */
-    public Supplier_Monitoring_GUI() {
-        // Initialize components generated by the GUI builder
-        initComponents();
-        // Custom initialization: connect to DB and load data
-        connectDB();
-        loadAllTableData();
->>>>>>> Stashed changes
-    }
-
-
-    /**
-     * Helper to clear Supplier input fields
-     */
-    private void clearSupplierFields() {
-        SupplierIDtxt.setText("");
-        SFullNametxt.setText("");
-        Addresstxt.setText("");
-        Phonetxt.setText("");
-    }
-    private void clearDeliveryFields() {
-        DeliverIDtxt.setText("");
-        jTextField2.setText(""); // Supplier ID
-        jTextField3.setText(""); // Item ID
-        Consignortxt.setText("");
-        quantitytxt.setText("");
-        Pricnetxt.setText("");
-        Datetxt.setText("");
-    }
-
-
-    private void connectDB() {
-        try {
-            // Loading the SQLite driver is often implicit but good practice
-            Class.forName("org.sqlite.JDBC");
-            conn = DriverManager.getConnection(DB_URL);
-            initializeDB();
-            System.out.println("Database connected and initialized.");
-
-            // Add a shutdown hook to close the connection when the window closes
-            this.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    closeDBConnection();
-                }
-            });
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Database Connection Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Closes the database connection.
-     */
     private void closeDBConnection() {
         if (conn != null) {
             try {
@@ -274,49 +98,29 @@ public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
             }
         }
     }
+    private void loadItemsTable() {
+   
+    Vector<Vector<Object>> data = Items.getAllItemsForTable();
+    
+   
+    Vector<String> columnNames = new Vector<>(java.util.Arrays.asList("Item ID", "Item Code", "Item Name", "Category"));
+    
+    jTable1.setModel(new DefaultTableModel(data, columnNames));
+}
+private void loadAllTableData() {
+    loadItemsTable();
+    // loadSuppliersTable(); // Implement these once the Supplier DAO is ready
+    // loadDeliveriesTable(); // Implement these once the Delivery DAO is ready
+}
 
-    private void loadAllTableData() {
-        loadTableData(ITEMS_TABLE, jTable1);
-        loadTableData(SUPPLIERS_TABLE, jTable3);
-        loadTableData(DELIVERIES_TABLE, jTable2);
-    }
-
-    private void loadTableData(String tableName, JTable table) {
-        if (conn == null) return;
-
-        try {
-            // For Deliveries, we perform a join to show SupplierName and ItemName
-            String query;
-            if (tableName.equals(DELIVERIES_TABLE)) {
-                // Join Deliveries with Suppliers and Items to show names in the table
-                query = "SELECT d.DeliverID, d.SupplierID, d.ItemID, d.Consignor, s.SFullName AS SupplierName, i.ItemName, d.Quantity, d.Price, d.Date "
-                        + "FROM Deliveries d "
-                        + "LEFT JOIN Suppliers s ON d.SupplierID = s.SupplierID "
-                        + "LEFT JOIN Items i ON d.ItemID = i.ItemID";
-            } else {
-                 query = "SELECT * FROM " + tableName;
-            }
-
-            PreparedStatement pst = conn.prepareStatement(query);
-            ResultSet rs = pst.executeQuery();
-            table.setModel(buildTableModel(rs));
-            rs.close();
-            pst.close();
-        } catch (Exception e) {
-            System.err.println("Error loading " + tableName + ": " + e.getMessage());
-        }
-    }
     public static DefaultTableModel buildTableModel(ResultSet rs) throws SQLException {
         ResultSetMetaData metaData = rs.getMetaData();
-
-        // Column names
         Vector<String> columnNames = new Vector<>();
         int columnCount = metaData.getColumnCount();
         for (int column = 1; column <= columnCount; column++) {
             columnNames.add(metaData.getColumnLabel(column));
         }
 
-        // Data of the table
         Vector<Vector<Object>> data = new Vector<>();
         while (rs.next()) {
             Vector<Object> vector = new Vector<>();
@@ -339,14 +143,13 @@ public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
 
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
-            // Ensure .csv extension
-            if (!fileToSave.getAbsolutePath().endsWith(".csv")) {
+            if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".csv")) {
                 fileToSave = new File(fileToSave.getAbsolutePath() + ".csv");
             }
 
             try (FileWriter fw = new FileWriter(fileToSave)) {
                 TableModel model = table.getModel();
-                
+
                 // Write column headers
                 for (int i = 0; i < model.getColumnCount(); i++) {
                     fw.write(model.getColumnName(i) + (i == model.getColumnCount() - 1 ? "" : ","));
@@ -357,7 +160,8 @@ public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
                 for (int i = 0; i < model.getRowCount(); i++) {
                     for (int j = 0; j < model.getColumnCount(); j++) {
                         Object cellValue = model.getValueAt(i, j);
-                        String value = (cellValue == null) ? "" : cellValue.toString().replace(",", ";"); // Replace commas to avoid breaking CSV format
+                        // Replace commas to avoid breaking CSV format
+                        String value = (cellValue == null) ? "" : cellValue.toString().replace(",", ";");
                         fw.write(value + (j == model.getColumnCount() - 1 ? "" : ","));
                     }
                     fw.write("\n");
@@ -371,47 +175,115 @@ public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
         }
     }
 
- 
-   
-    private void addRowSelectionListener() {
+    // --- Clear Field Helpers (User's original code) ---
+
+    private void clearItemFields() {
+        ItemIDtxt.setText("");
+        ItemNameTxt.setText("");
+        ItemcategoryTxt.setText("");
+        itemCodeTxt.setText("");
+    }
+
+    private void clearSupplierFields() {
+        SupplierIDtxt.setText("");
+        SFullNametxt.setText("");
+        Addresstxt.setText("");
+        Phonetxt.setText("");
+    }
+
+    private void clearDeliveryFields() {
+        DeliverIDtxt.setText("");
+        Consignortxt.setText("");
+        Pricnetxt.setText("");
+        quantitytxt.setText("");
+        Datetxt.setText("");
+        jTextField2.setText(""); // Supplier ID
+        jTextField3.setText(""); // Item ID
+    }
+
+    // --- Listener Initialization (User's original code) ---
+
+    private void addRowSelectionListenerForItems() {
         jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent event) {
-                // Prevent double-handling and ensure a row is actually selected
                 if (!event.getValueIsAdjusting() && jTable1.getSelectedRow() != -1) {
                     int selectedRow = jTable1.getSelectedRow();
                     TableModel model = jTable1.getModel();
-                   
+
                     try {
-                        // Ensure the column indices match the data model in loadTableData
+                        // Columns: 0: ItemID, 1: ItemCode, 2: ItemName, 3: Category
                         ItemIDtxt.setText(model.getValueAt(selectedRow, 0).toString());
                         itemCodeTxt.setText(model.getValueAt(selectedRow, 1).toString());
                         ItemNameTxt.setText(model.getValueAt(selectedRow, 2).toString());
                         ItemcategoryTxt.setText(model.getValueAt(selectedRow, 3).toString());
                     } catch (Exception e) {
-                        System.err.println("Error reading row data: " + e.getMessage());
-                        // Clear fields if data is unexpected
+                        System.err.println("Error reading row data for Items: " + e.getMessage());
                         clearItemFields();
                     }
                 }
             }
         });
-        
-    
     }
 
-  
-    public Supplier_Monitoring_GUI() {
-        // Initialize components generated by the GUI builder
-        initComponents();
-       
-        connectDB();
-        loadAllTableData();
-        addRowSelectionListener(); 
-        
-        
-        jTabbedPane1.setSelectedIndex(0); 
+    private void addRowSelectionListenerForSuppliers() {
+        jTable3.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent event) {
+                if (!event.getValueIsAdjusting() && jTable3.getSelectedRow() != -1) {
+                    int selectedRow = jTable3.getSelectedRow();
+                    TableModel model = jTable3.getModel();
+
+                    try {
+                        // Columns: 0: SupplierID, 1: SFullName, 2: Address, 3: PhoneTxt
+                        SupplierIDtxt.setText(model.getValueAt(selectedRow, 0).toString());
+                        SFullNametxt.setText(model.getValueAt(selectedRow, 1).toString());
+                        Addresstxt.setText(model.getValueAt(selectedRow, 2).toString());
+                        Phonetxt.setText(model.getValueAt(selectedRow, 3).toString());
+                    } catch (Exception e) {
+                        System.err.println("Error reading row data for Suppliers: " + e.getMessage());
+                        clearSupplierFields();
+                    }
+                }
+            }
+        });
     }
+
+    private void addRowSelectionListenerForDeliveries() {
+        jTable2.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent event) {
+                if (!event.getValueIsAdjusting() && jTable2.getSelectedRow() != -1) {
+                    int selectedRow = jTable2.getSelectedRow();
+                    TableModel model = jTable2.getModel();
+
+                    try {
+                        // Deliveries joined query columns:
+                        // 0: DeliverID, 1: SupplierID, 2: ItemID, 3: Consignor, 6: Quantity, 7: Price, 8: Date
+                        DeliverIDtxt.setText(model.getValueAt(selectedRow, 0).toString());
+                        jTextField2.setText(model.getValueAt(selectedRow, 1).toString()); // SupplierID
+                        jTextField3.setText(model.getValueAt(selectedRow, 2).toString()); // ItemID
+                        Consignortxt.setText(model.getValueAt(selectedRow, 3).toString());
+                        quantitytxt.setText(model.getValueAt(selectedRow, 6).toString());
+                        Pricnetxt.setText(model.getValueAt(selectedRow, 7).toString());
+                        Datetxt.setText(model.getValueAt(selectedRow, 8).toString());
+                    } catch (Exception e) {
+                        System.err.println("Error reading row data for Deliveries: " + e.getMessage());
+                        clearDeliveryFields();
+                    }
+                }
+            }
+        });
+    }
+
+    private void initListeners() {
+        addRowSelectionListenerForItems();
+        addRowSelectionListenerForSuppliers();
+        addRowSelectionListenerForDeliveries();
+    }
+
+
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -631,6 +503,7 @@ public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
                             .addComponent(jLabel10)
                             .addComponent(ItemIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(ItemPanelLayout.createSequentialGroup()
+                                .addGap(11, 11, 11)
                                 .addComponent(SaveItemBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(updItemBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -644,7 +517,7 @@ public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
                             .addComponent(jLabel7))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(expitembtn, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 20, Short.MAX_VALUE))
+                .addGap(0, 9, Short.MAX_VALUE))
         );
         ItemPanelLayout.setVerticalGroup(
             ItemPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1109,8 +982,8 @@ public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void DeliverBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeliverBtnActionPerformed
-         jTabbedPane1.setSelectedIndex(1);
-         
+       jTabbedPane1.setSelectedIndex(1); // Supplier Panel
+        loadTableData(SUPPLIERS_TABLE, jTable3);
     }//GEN-LAST:event_DeliverBtnActionPerformed
 
     private void ItemNameTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ItemNameTxtActionPerformed
@@ -1118,89 +991,30 @@ public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_ItemNameTxtActionPerformed
 
     private void SupplierBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SupplierBtnActionPerformed
-         jTabbedPane1.setSelectedIndex(2);
+       jTabbedPane1.setSelectedIndex(2); // Deliver Panel
+        loadTableData(DELIVERIES_TABLE, jTable2);
     }//GEN-LAST:event_SupplierBtnActionPerformed
 
     private void SaveItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveItemBtnActionPerformed
-        String id = ItemIDtxt.getText().trim();
-        String code = itemCodeTxt.getText().trim();
-        String name = ItemNameTxt.getText().trim();
-        String category = ItemcategoryTxt.getText().trim();
+    String code = itemCodeTxt.getText().trim();
+    String name = ItemNameTxt.getText().trim();
+    String category = ItemcategoryTxt.getText().trim();
 
-        if (id.isEmpty() || code.isEmpty() || name.isEmpty() || category.isEmpty()) {
-<<<<<<< Updated upstream
-            JOptionPane.showMessageDialog(this, "All Item fields must be filled out.", "Input Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    if (code.isEmpty() || name.isEmpty() || category.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "All Item fields are required.", 
+                                      "Input Error", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-        String sql = "INSERT INTO " + ITEMS_TABLE + " (ItemID, ItemCode, ItemName, Category) VALUES (?, ?, ?, ?)";
+    Items newItem = new Items(null, code, name, category);
+    String result = newItem.insertToDatabase_Item();
 
-        try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setString(1, id);
-            pst.setString(2, code);
-            pst.setString(3, name);
-            pst.setString(4, category);
-            
-            int rowsAffected = pst.executeUpdate();
-            if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(this, "Item added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loadTableData(ITEMS_TABLE, jTable1);
-                clearItemFields();
-            }
-        } catch (SQLException e) {
-            if (e.getMessage().contains("UNIQUE constraint failed: Items.ItemID")) {
-                 JOptionPane.showMessageDialog(this, "Error: Item ID '" + id + "' already exists.", "Database Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                 JOptionPane.showMessageDialog(this, "Error adding item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-            }
-            e.printStackTrace();
-        }
-=======
-            JOptionPane.showMessageDialog(this, "All Item fields are required.", "Input Error", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+    JOptionPane.showMessageDialog(this, result, "Save Status", 
+                                  result.startsWith("✓") ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+    
+    loadItemsTable();
+    clearItemFields(); 
 
-        String checkSql = "SELECT COUNT(*) FROM " + ITEMS_TABLE + " WHERE ItemID = ?";
-        String sql = "";
-        boolean isUpdate = false;
-        try (PreparedStatement checkPst = conn.prepareStatement(checkSql)) {
-            checkPst.setString(1, id);
-            ResultSet rs = checkPst.executeQuery();
-            rs.next();
-            isUpdate = rs.getInt(1) > 0;
-            rs.close();
-
-            if (isUpdate) {
-                // Update existing record
-                sql = "UPDATE " + ITEMS_TABLE + " SET ItemCode=?, ItemName=?, Category=? WHERE ItemID=?";
-            } else {
-                // Insert new record
-                sql = "INSERT INTO " + ITEMS_TABLE + " (ItemID, ItemCode, ItemName, Category) VALUES (?, ?, ?, ?)";
-            }
-
-            try (PreparedStatement pst = conn.prepareStatement(sql)) {
-                if (isUpdate) {
-                    pst.setString(1, code);
-                    pst.setString(2, name);
-                    pst.setString(3, category);
-                    pst.setString(4, id); // WHERE clause
-                } else {
-                    pst.setString(1, id);
-                    pst.setString(2, code);
-                    pst.setString(3, name);
-                    pst.setString(4, category);
-                }
-                pst.executeUpdate();
-                loadTableData(ITEMS_TABLE, jTable1);
-                clearItemFields();
-                JOptionPane.showMessageDialog(this, (isUpdate ? "Updated" : "Saved") + " Item Record successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }     
-        
->>>>>>> Stashed changes
     }//GEN-LAST:event_SaveItemBtnActionPerformed
 
     private void itemCodeTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemCodeTxtActionPerformed
@@ -1208,14 +1022,8 @@ public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
     }//GEN-LAST:event_itemCodeTxtActionPerformed
 
     private void ItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ItemBtnActionPerformed
-<<<<<<< Updated upstream
-       jTabbedPane1.setSelectedIndex(0); 
-        clearItemFields();
+    jTabbedPane1.setSelectedIndex(0); // Item Panel
         loadTableData(ITEMS_TABLE, jTable1);
-=======
-        jTabbedPane1.setSelectedIndex(0); // Switch to Item Record tab (index 0)
-        loadTableData(ITEMS_TABLE, jTable1); // Refresh data
->>>>>>> Stashed changes
     }//GEN-LAST:event_ItemBtnActionPerformed
 
     private void PricnetxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PricnetxtActionPerformed
@@ -1239,60 +1047,12 @@ public class Supplier_Monitoring_GUI extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_PhonetxtActionPerformed
 
-<<<<<<< Updated upstream
-
-    private void updDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {                                           
-     StringBuilder sb = new StringBuilder();
-    for (Delivers d : Main.getDeliveries()) {
-        sb.append("ID: ").append(d.getDeliverID())
-          .append(", Consignor: ").append(d.getConsignor())
-          .append(", Price: ").append(d.getPrice())
-          .append(", Quantity: ").append(d.getQuantity())
-          .append(", Date: ").append(d.getDate())
-          .append("\n");
-    }
-    JOptionPane.showMessageDialog(this, sb.length() == 0 ? "No deliveries found." : sb.toString(), "Deliveries", JOptionPane.INFORMATION_MESSAGE);
-=======
-    private void exportDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {                                              
- 
->>>>>>> Stashed changes
-}
-private void DeleteDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {
-<<<<<<< Updated upstream
-    String id = DeliverIDtxt.getText().trim();
-    if (id.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Enter Delivery ID to delete.");
-        return;
-    }
-
-    Delivers toRemove = null;
-    for (Delivers d : Main.getDeliveries()) {
-        if (d.getDeliverID().equals(id)) {
-            toRemove = d;
-            break;
-        }
-    }
-
-    if (toRemove != null) {
-        Main.getDeliveries().remove(toRemove);
-        JOptionPane.showMessageDialog(this, "Delivery deleted.");
-        clearDeliveryFields();
-    } else {
-        JOptionPane.showMessageDialog(this, "Delivery ID not found.");
-    }   
-    }                                          
-
-   
-    }                                             
-
-=======
     private void exportDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportDeliBtnActionPerformed
- 
+
 }
 private void DeleteDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {
    
     }//GEN-LAST:event_exportDeliBtnActionPerformed
->>>>>>> Stashed changes
 
     private void SaveSupBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveSupBtnActionPerformed
    
@@ -1302,7 +1062,7 @@ private void DeleteDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {
     private void updSupplierBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updSupplierBtnActionPerformed
    
     }//GEN-LAST:event_updSupplierBtnActionPerformed
-=======
+
     private void exportSupBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportSupBtnActionPerformed
 
     }//GEN-LAST:event_exportSupBtnActionPerformed
@@ -1317,116 +1077,52 @@ private void DeleteDeliBtnActionPerformed(java.awt.event.ActionEvent evt) {
     }//GEN-LAST:event_DeleteDeliBtnActionPerformed
 
     private void updItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updItemBtnActionPerformed
-        String id = ItemIDtxt.getText().trim();
-        String code = itemCodeTxt.getText().trim();
-        String name = ItemNameTxt.getText().trim();
-        String category = ItemcategoryTxt.getText().trim();
+   String itemID = ItemIDtxt.getText().trim();
+    String newCode = itemCodeTxt.getText().trim();
+    String newName = ItemNameTxt.getText().trim();
+    String newCategory = ItemcategoryTxt.getText().trim();
 
-        if (id.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Item ID is required for updating a record.", "Input Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-         if (code.isEmpty() || name.isEmpty() || category.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "All fields (except ID if auto-generated) must be filled to update.", "Input Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    if (itemID.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Select an item from the table to update.", 
+                                      "Update Error", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    String result = Items.updateItemInDatabase(itemID, newCode, newName, newCategory);
 
-        String sql = "UPDATE " + ITEMS_TABLE + " SET ItemCode = ?, ItemName = ?, Category = ? WHERE ItemID = ?";
-
-        try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setString(1, code);
-            pst.setString(2, name);
-            pst.setString(3, category);
-            pst.setString(4, id);
-            
-            int rowsAffected = pst.executeUpdate();
-            if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(this, "Item updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loadTableData(ITEMS_TABLE, jTable1);
-                clearItemFields();
-            } else {
-                JOptionPane.showMessageDialog(this, "No item found with ID: " + id, "Update Failed", JOptionPane.WARNING_MESSAGE);
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error updating item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }    
-    }//GEN-LAST:event_updItemBtnActionPerformed
-=======
-    private void ExportItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportItemBtnActionPerformed
-<<<<<<< Updated upstream
-   
-=======
-    exportTable(jTable1, "ItemRecords.csv");  
->>>>>>> Stashed changes
-}
-
-private void DeleteItemBtnActionPerformed(java.awt.event.ActionEvent evt) {
+    JOptionPane.showMessageDialog(this, result, "Update Status", 
+                                  result.startsWith("✓") ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
     
+    loadItemsTable();
+    clearItemFields();
+    }//GEN-LAST:event_updItemBtnActionPerformed
+
+    private void ExportItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportItemBtnActionPerformed
+    }
+private void DeleteItemBtnActionPerformed(java.awt.event.ActionEvent evt) {
     }//GEN-LAST:event_ExportItemBtnActionPerformed
 
-
     private void DeleteItemBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteItemBtnActionPerformed
-<<<<<<< Updated upstream
- String id = ItemIDtxt.getText().trim();
+    String itemID = ItemIDtxt.getText().trim();
 
-        if (id.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Item ID is required for deletion.", "Input Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    if (itemID.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Select an item from the table to delete.", 
+                                      "Delete Error", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    
+    int confirm = JOptionPane.showConfirmDialog(this, 
+            "Are you sure you want to delete Item ID: " + itemID + "?", 
+            "Confirm Delete", JOptionPane.YES_NO_OPTION);
+
+    if (confirm == JOptionPane.YES_OPTION) {
+        // Calls the DAO delete method
+        String result = Items.deleteItemFromDatabase(itemID);
+
+        JOptionPane.showMessageDialog(this, result, "Delete Status", 
+                                      result.startsWith("✓") ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
         
-        int confirm = JOptionPane.showConfirmDialog(this, 
-                "Are you sure you want to delete Item ID: " + id + "?\n(This action cannot be undone.)", 
-                "Confirm Delete", JOptionPane.YES_NO_OPTION);
-        
-        if (confirm == JOptionPane.NO_OPTION) {
-            return;
-        }
-
-        String sql = "DELETE FROM " + ITEMS_TABLE + " WHERE ItemID = ?";
-
-        try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setString(1, id);
-            
-            int rowsAffected = pst.executeUpdate();
-            if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(this, "Item deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loadTableData(ITEMS_TABLE, jTable1);
-                clearItemFields();
-            } else {
-                JOptionPane.showMessageDialog(this, "No item found with ID: " + id, "Delete Failed", JOptionPane.WARNING_MESSAGE);
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error deleting item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
-=======
-String id = ItemIDtxt.getText().trim();
-
-        if (id.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Item ID is required for deletion.", "Input Error", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete Item ID: " + id + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            String sql = "DELETE FROM " + ITEMS_TABLE + " WHERE ItemID = ?";
-            try (PreparedStatement pst = conn.prepareStatement(sql)) {
-                pst.setString(1, id);
-                int rowsAffected = pst.executeUpdate();
-                if (rowsAffected > 0) {
-                    loadTableData(ITEMS_TABLE, jTable1);
-                    clearItemFields();
-                    JOptionPane.showMessageDialog(this, "Item Record deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Item ID not found.", "Not Found", JOptionPane.WARNING_MESSAGE);
-                }
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
-            }
-        }   
->>>>>>> Stashed changes
+        loadItemsTable();
+        clearItemFields();
     }//GEN-LAST:event_DeleteItemBtnActionPerformed
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
@@ -1473,50 +1169,10 @@ String id = ItemIDtxt.getText().trim();
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField5ActionPerformed
 
-<<<<<<< Updated upstream
     private void expitembtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_expitembtnActionPerformed
-exportTableToCSV(jTable1, "Items_Record_Export.csv");        // TODO add your handling code here:
+     exportTableToCSV(jTable1, "Items_Export.csv"); // TODO add your handling code here:
     }//GEN-LAST:event_expitembtnActionPerformed
-
-=======
->>>>>>> Stashed changes
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Windows".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Supplier_Monitoring_GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Supplier_Monitoring_GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Supplier_Monitoring_GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Supplier_Monitoring_GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Supplier_Monitoring_GUI().setVisible(true);
-            }
-        });
-    }
+  
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField Addresstxt;

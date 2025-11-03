@@ -5,7 +5,7 @@ public class SupplierMonitoring_Database {
     
     private static final String url = "jdbc:mysql://localhost:3306/supplier_monitoring";
     private static final String user = "root";
-    private static final String pass = "ADMIN_@yoni0929"; // leave blank if no password
+    private static final String pass = "shairamata"; // leave blank if no password
     
     public static Connection getConnection() {
         Connection con = null;
