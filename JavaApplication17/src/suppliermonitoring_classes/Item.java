@@ -4,6 +4,12 @@
  */
 package suppliermonitoring_classes;
 
+import java.sql.*;
+import java.io.*;
+import java.text.SimpleDateFormat; 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import suppliermonitoring_classes.DatabaseConnection; 
 /**
  *
  * @author Elaine
@@ -15,7 +21,245 @@ public class Item extends javax.swing.JFrame {
      */
     public Item() {
         initComponents();
+        loadItems(); 
+       
+        saveItem.addActionListener(new java.awt.event.ActionListener() {
+        @Override
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            saveItemActionPerformed(evt);
+        }
+    });
+        
+    updateItem.addActionListener(new java.awt.event.ActionListener() {
+        @Override
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            updateItemActionPerformed(evt);
+        }
+    });
+    deleteItem.addActionListener(new java.awt.event.ActionListener() {
+        @Override
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            deleteItemActionPerformed(evt);
+        }
+    });
+    exportItem.addActionListener(new java.awt.event.ActionListener() {
+        @Override
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            exportItemActionPerformed(evt);
+        }
+    });
+
+    itemTable.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            itemTableMouseClicked(evt); 
+        }
+    });
+        }
+    
+    private void loadItems() {
+    DefaultTableModel model = (DefaultTableModel) itemTable.getModel();
+    model.setRowCount(0); 
+
+    try (Connection conn = DatabaseConnection.getConnection(); 
+          Statement stmt = conn.createStatement();
+          ResultSet rs = stmt.executeQuery("SELECT itemID, code, name, category FROM Item")) {
+
+        
+        model.setColumnIdentifiers(new String[]{"ID", "Code", "Name", "Category"});
+        
+        while (rs.next()) {
+            model.addRow(new Object[]{
+                rs.getInt("itemID"),
+                rs.getString("code"),
+                rs.getString("name"),
+                rs.getString("category")
+            });
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error loading items: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE); 
     }
+}
+private void saveItem() {
+    String code = itemCodetxt.getText().trim();
+    String name = itemNametxt.getText().trim();
+    String category = itemCategorytxt.getText().trim();
+
+    if (code.isEmpty() || name.isEmpty() || category.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please input in all required fields (Code, Name, Category)!", "Input Error", JOptionPane.WARNING_MESSAGE); 
+        return; 
+    }
+
+    String sql = "INSERT INTO Item (code, name, category) VALUES (?, ?, ?)"; 
+    try (Connection conn = DatabaseConnection.getConnection(); 
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, code);
+        ps.setString(2, name);
+        ps.setString(3, category);
+        int rowsAffected = ps.executeUpdate(); 
+        if (rowsAffected > 0) {
+            JOptionPane.showMessageDialog(this, "Item added successfully!");
+            loadItems();
+            clearFields(); 
+        } else {
+            JOptionPane.showMessageDialog(this, "Item insertion failed (0 rows affected).", "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+        
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error adding item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE); 
+    }
+}
+
+private void updateItem() {
+    int row = itemTable.getSelectedRow(); 
+    
+    if (row < 0) {
+        JOptionPane.showMessageDialog(this, "Please select an item to update!", "Selection Error", JOptionPane.WARNING_MESSAGE); 
+        return;
+    }
+    Object itemIdValue = itemTable.getValueAt(row, 0);
+    if (itemIdValue == null) {
+        JOptionPane.showMessageDialog(this, "Could not retrieve Item ID from the table.", "Data Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    int itemID = Integer.parseInt(itemIdValue.toString());
+
+    String code = itemCodetxt.getText().trim();
+    String name = itemNametxt.getText().trim();
+    String category = itemCategorytxt.getText().trim();
+
+    if (code.isEmpty() || name.isEmpty() || category.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "All fields are required for update!", "Input Error", JOptionPane.WARNING_MESSAGE);
+        return; 
+    }
+
+    String sql = "UPDATE Item SET code=?, name=?, category=? WHERE itemID=?"; 
+    try (Connection conn = DatabaseConnection.getConnection(); 
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, code);
+        ps.setString(2, name);
+        ps.setString(3, category);
+        ps.setInt(4, itemID);
+        int rowsAffected = ps.executeUpdate();
+        
+        if (rowsAffected > 0) {
+            JOptionPane.showMessageDialog(this, "Item updated successfully!"); 
+            loadItems();
+            clearFields();
+        } else {
+             JOptionPane.showMessageDialog(this, "Update failed: Item with ID " + itemID + " not found or no changes were made.", "Update Failed", JOptionPane.WARNING_MESSAGE);
+        }
+        
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error updating item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE); 
+    }
+}
+private void deleteItem() {
+    int row = itemTable.getSelectedRow(); 
+    
+    if (row < 0) {
+        JOptionPane.showMessageDialog(this, "Please select an item to delete!", "Selection Error", JOptionPane.WARNING_MESSAGE); 
+        return;
+    }
+    
+    int itemID = Integer.parseInt(itemTable.getValueAt(row, 0).toString()); 
+    
+    int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this item?", "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); 
+    
+    if (confirm == JOptionPane.YES_OPTION) { 
+        String sql = "DELETE FROM Item WHERE itemID=?"; 
+        try (Connection conn = DatabaseConnection.getConnection(); 
+              PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, itemID);
+            int rowsAffected = ps.executeUpdate(); 
+            
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(this, "Item deleted successfully!");
+                loadItems();
+                clearFields();
+            } else {
+                 JOptionPane.showMessageDialog(this, "Deletion failed: Item with ID " + itemID + " not found.", "Deletion Failed", JOptionPane.WARNING_MESSAGE);
+            }
+            
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error deleting item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE); 
+        }
+    }
+} 
+
+
+private void exportItem() {
+    JFileChooser chooser = new JFileChooser();
+    chooser.setDialogTitle("Save Items CSV File");
+    
+    String timestamp = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new java.util.Date());
+    chooser.setSelectedFile(new java.io.File("items_" + timestamp + ".csv"));
+    
+    int userSelection = chooser.showSaveDialog(this);
+
+    if (userSelection == JFileChooser.APPROVE_OPTION) {
+        File fileToSave = chooser.getSelectedFile();
+        String filePath = fileToSave.getAbsolutePath();
+        String query = "SELECT itemID, code, name, category FROM Item";
+
+        try (
+            Connection con = DatabaseConnection.getConnection();
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            PrintWriter pw = new PrintWriter(new FileWriter(filePath)) 
+        ) {
+
+            ResultSetMetaData meta = rs.getMetaData();
+            int columnCount = meta.getColumnCount();
+
+            for (int i = 1; i <= columnCount; i++) {
+                pw.print(meta.getColumnLabel(i)); 
+                if (i < columnCount) pw.print(",");
+            }
+            pw.println();
+            while (rs.next()) {
+                for (int i = 1; i <= columnCount; i++) {
+                    String value = rs.getString(i);
+                    if (value != null && value.contains(",")) {
+                        pw.print("\"" + value.replace("\"", "\"\"") + "\"");
+                    } else {
+                        pw.print(value != null ? value : "");
+                    }
+                    
+                    if (i < columnCount) pw.print(",");
+                }
+                pw.println();
+            }
+
+            JOptionPane.showMessageDialog(this, "Items exported successfully to:\n" + filePath);
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error exporting data: " + ex.getMessage());
+        }
+    }
+}
+private void clearFields() {
+    ItemIDtxt.setText(""); 
+    itemCodetxt.setText("");
+    itemNametxt.setText("");
+    itemCategorytxt.setText(""); 
+}
+
+private void populateFieldsFromTable() {
+    int selectedRow = itemTable.getSelectedRow();
+    
+    if (selectedRow >= 0) {
+        // Data in the table columns: 0=itemID, 1=code, 2=name, 3=category
+        ItemIDtxt.setText(itemTable.getValueAt(selectedRow, 0).toString());
+        itemCodetxt.setText(itemTable.getValueAt(selectedRow, 1).toString());
+        itemNametxt.setText(itemTable.getValueAt(selectedRow, 2).toString());
+        itemCategorytxt.setText(itemTable.getValueAt(selectedRow, 3).toString());
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -28,30 +272,59 @@ public class Item extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        ItemIDtxt = new javax.swing.JTextField();
+        itemCodetxt = new javax.swing.JTextField();
+        itemNametxt = new javax.swing.JTextField();
+        itemCategorytxt = new javax.swing.JTextField();
+        saveItem = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        itemTable = new javax.swing.JTable();
         jLabel6 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        updateItem = new javax.swing.JButton();
+        exportItem = new javax.swing.JButton();
+        deleteItem = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setText("Create New");
 
-        jButton1.setText("SAVE");
+        ItemIDtxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ItemIDtxtActionPerformed(evt);
+            }
+        });
+
+        itemCodetxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemCodetxtActionPerformed(evt);
+            }
+        });
+
+        itemNametxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemNametxtActionPerformed(evt);
+            }
+        });
+
+        itemCategorytxt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemCategorytxtActionPerformed(evt);
+            }
+        });
+
+        saveItem.setText("SAVE");
+        saveItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveItemActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Item ID");
 
@@ -72,16 +345,16 @@ public class Item extends javax.swing.JFrame {
                         .addComponent(jLabel1))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(102, 102, 102)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(saveItem, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(30, 30, 30)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jTextField1)
-                                .addComponent(jTextField2)
-                                .addComponent(jTextField3)
-                                .addComponent(jTextField4, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
+                                .addComponent(ItemIDtxt)
+                                .addComponent(itemCodetxt)
+                                .addComponent(itemNametxt)
+                                .addComponent(itemCategorytxt, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
                             .addComponent(jLabel3)
                             .addComponent(jLabel5)
                             .addComponent(jLabel4))))
@@ -95,25 +368,25 @@ public class Item extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addGap(4, 4, 4)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(ItemIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
                 .addGap(2, 2, 2)
-                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(itemCodetxt, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(2, 2, 2)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(itemNametxt, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel5)
                 .addGap(3, 3, 3)
-                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(itemCategorytxt, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(saveItem, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        itemTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -121,10 +394,18 @@ public class Item extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Item ID", "Item Code", "Item Name", "Category"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Double.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(itemTable);
 
         jLabel6.setText("Item List");
 
@@ -153,16 +434,26 @@ public class Item extends javax.swing.JFrame {
 
         jLabel7.setText("Actions");
 
-        jButton2.setText("UPDATE");
-
-        jButton3.setText("EXPORT");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        updateItem.setText("UPDATE");
+        updateItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                updateItemActionPerformed(evt);
             }
         });
 
-        jButton4.setText("DELETE");
+        exportItem.setText("EXPORT");
+        exportItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportItemActionPerformed(evt);
+            }
+        });
+
+        deleteItem.setText("DELETE");
+        deleteItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteItemActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -174,9 +465,9 @@ public class Item extends javax.swing.JFrame {
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(jLabel7)
                         .addGap(79, 129, Short.MAX_VALUE))
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(updateItem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(exportItem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(deleteItem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -184,11 +475,11 @@ public class Item extends javax.swing.JFrame {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addComponent(jLabel7)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(updateItem, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(exportItem, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(deleteItem, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -219,10 +510,40 @@ public class Item extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+    private void exportItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportItemActionPerformed
+       exportItem(); // TODO add your handling code here:
+    }//GEN-LAST:event_exportItemActionPerformed
 
+    private void ItemIDtxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ItemIDtxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ItemIDtxtActionPerformed
+
+    private void deleteItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteItemActionPerformed
+        deleteItem();// TODO add your handling code here:
+    }//GEN-LAST:event_deleteItemActionPerformed
+
+    private void updateItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateItemActionPerformed
+       updateItem(); // TODO add your handling code here:
+    }//GEN-LAST:event_updateItemActionPerformed
+
+    private void itemCodetxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemCodetxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_itemCodetxtActionPerformed
+
+    private void itemNametxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemNametxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_itemNametxtActionPerformed
+
+    private void itemCategorytxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemCategorytxtActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_itemCategorytxtActionPerformed
+
+    private void saveItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveItemActionPerformed
+       saveItem(); // TODO add your handling code here:
+    }//GEN-LAST:event_saveItemActionPerformed
+private void itemTableMouseClicked(java.awt.event.MouseEvent evt) {                                            
+    populateFieldsFromTable();
+}
     /**
      * @param args the command line arguments
      */
@@ -259,10 +580,13 @@ public class Item extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
+    private javax.swing.JTextField ItemIDtxt;
+    private javax.swing.JButton deleteItem;
+    private javax.swing.JButton exportItem;
+    private javax.swing.JTextField itemCategorytxt;
+    private javax.swing.JTextField itemCodetxt;
+    private javax.swing.JTextField itemNametxt;
+    private javax.swing.JTable itemTable;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -274,10 +598,7 @@ public class Item extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
+    private javax.swing.JButton saveItem;
+    private javax.swing.JButton updateItem;
     // End of variables declaration//GEN-END:variables
 }
