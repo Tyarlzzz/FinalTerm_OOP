@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+
 /**
  *
  * @author Elaine
@@ -79,22 +80,22 @@ public class Deliver extends javax.swing.JFrame {
     }
     }
     private void updateData(){
-        int selectedRow = dltbl.getSelectedRow();
-        
-        if (selectedRow == -1){
-            JOptionPane.showMessageDialog(this, "Please Select row to update");
-            return;
-        }
-    String deliveryID = deltxt.getText();
+    int selectedRow = dltbl.getSelectedRow();
+    if (selectedRow == -1){
+        JOptionPane.showMessageDialog(this, "Please select a row to update.");
+        return;
+    }
+
+    String deliveryID = dltbl.getValueAt(selectedRow, 0).toString(); // get ID from table
     String supplierID = supCmb.getSelectedItem().toString();
     String itemID = itmCmb.getSelectedItem().toString();
     String consignor = contxt.getText();
     String supplierName = supNameCmb.getSelectedItem().toString();
     String itemName = itmNameCmb.getSelectedItem().toString();
     java.util.Date selectedDate = dt.getDate();
-    int quantity = 0;
-    double price = 0.0;
-    
+
+    int quantity;
+    double price;
     try {
         quantity = Integer.parseInt(qnty.getText());
         price = Double.parseDouble(prc.getText());
@@ -102,33 +103,30 @@ public class Deliver extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Quantity and Price must be valid numbers.");
         return;
     }
-    if (deliveryID.isEmpty() || consignor.isEmpty() || selectedDate == null) {
+
+    if (consignor.isEmpty() || selectedDate == null) {
         JOptionPane.showMessageDialog(this, "All fields are required!");
         return;
     }
-    int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to update Delivery ID " + deliveryID + "?","Confirm Update", JOptionPane.YES_NO_OPTION);
-    if (confirm != JOptionPane.YES_OPTION) {
-        return;
-    }
-    String sql = "UPDATE delivers SET supplierID = ?, itemID = ?, consignor = ?, full_name = ?, name = ?, quantity = ?, price = ?, date = ? WHERE delivery_id = ?";
-    try (
-        Connection con = DatabaseConnection.getConnection(); 
-        PreparedStatement pstmt = con.prepareStatement(sql)) 
-    {
-        pstmt.setString(1, deliveryID);
-        pstmt.setString(2, supplierID);
-        pstmt.setString(3, itemID);
-        pstmt.setString(4, consignor);
-        pstmt.setString(5, supplierName);
-        pstmt.setString(6, itemName);
-        pstmt.setInt(7, quantity);
-        pstmt.setDouble(8, price);
+
+    String sql = "UPDATE delivers SET supplierID=?, itemID=?, consignor=?, full_name=?, name=?, quantity=?, price=?, date=? WHERE delivery_id=?";
+
+    try (Connection con = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+        pstmt.setString(1, supplierID);
+        pstmt.setString(2, itemID);
+        pstmt.setString(3, consignor);
+        pstmt.setString(4, supplierName);
+        pstmt.setString(5, itemName);
+        pstmt.setInt(6, quantity);
+        pstmt.setDouble(7, price);
         java.sql.Date sqlDate = new java.sql.Date(selectedDate.getTime());
         pstmt.setDate(8, sqlDate);
+        pstmt.setString(9, deliveryID);
 
-        int rowsUpdated = pstmt.executeUpdate();
-
-        if (rowsUpdated > 0) {
+        int rows = pstmt.executeUpdate();
+        if (rows > 0) {
             JOptionPane.showMessageDialog(this, "Record updated successfully!");
             loadData();
         } else {
@@ -138,108 +136,91 @@ public class Deliver extends javax.swing.JFrame {
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
     }
-    }
+}
     private void addData(){
-    String deliveryID = deltxt.getText();
     String supplierID = supCmb.getSelectedItem().toString();
     String itemID = itmCmb.getSelectedItem().toString();
     String consignor = contxt.getText();
     String supplierName = supNameCmb.getSelectedItem().toString();
     String itemName = itmNameCmb.getSelectedItem().toString();
     java.util.Date selectedDate = dt.getDate();
-    int quantity = 0;
-    double price = 0.0;
-    
+    int quantity;
+    double price;
+
     try {
-            quantity = Integer.parseInt(qnty.getText());
-            price = Double.parseDouble(prc.getText());
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Quantity snd Price Must be valid");
-        }
-    if (deliveryID.isEmpty() || consignor.isEmpty() || selectedDate == null) {
+        quantity = Integer.parseInt(qnty.getText());
+        price = Double.parseDouble(prc.getText());
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Quantity and Price must be valid numbers.");
+        return;
+    }
+
+    if (consignor.isEmpty() || selectedDate == null) {
         JOptionPane.showMessageDialog(this, "All fields are required!");
         return;
     }
-    String sql = "insert into delivers (delivery_id, supplierID, itemID, consignor, full_name, name, quantity, price, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
-    try (
-        Connection con = DatabaseConnection.getConnection(); 
-        PreparedStatement pstmt = con.prepareStatement(sql)
-    ) {
-        pstmt.setString(1, deliveryID);
-        pstmt.setString(2, supplierID);
-        pstmt.setString(3, itemID);
-        pstmt.setString(4, consignor);
-        pstmt.setString(5, supplierName);
-        pstmt.setString(6, itemName);
-        pstmt.setInt(7, quantity);
-        pstmt.setDouble(8, price);
+
+    String sql = "INSERT INTO delivers (supplierID, itemID, consignor, full_name, name, quantity, price, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+    try (Connection con = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+        pstmt.setString(1, supplierID);
+        pstmt.setString(2, itemID);
+        pstmt.setString(3, consignor);
+        pstmt.setString(4, supplierName);
+        pstmt.setString(5, itemName);
+        pstmt.setInt(6, quantity);
+        pstmt.setDouble(7, price);
         java.sql.Date sqlDate = new java.sql.Date(selectedDate.getTime());
-        pstmt.setDate(9, sqlDate);
+        pstmt.setDate(8, sqlDate);
+
         pstmt.executeUpdate();
 
         JOptionPane.showMessageDialog(this, "Record added successfully!");
-
-        deltxt.setText("");
         contxt.setText("");
         qnty.setText("");
         prc.setText("");
         dt.setDate(null);
-        supCmb.setSelectedIndex(0);
-        itmCmb.setSelectedIndex(0);
-        supNameCmb.setSelectedIndex(0);
-        itmNameCmb.setSelectedIndex(0);
         loadData();
 
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
     }
-    }
+}
     private void deleteData() {
-        int selectedRow = dltbl.getSelectedRow();
-        
-        if (selectedRow == -1){
-            javax.swing.JOptionPane.showMessageDialog(this, "Please select a record to delete.");
-            return;
-        }
-    String deliveryID = deltxt.getText();
-    if (deliveryID.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please enter or select a Delivery ID to delete.");
+    int selectedRow = dltbl.getSelectedRow();
+    if (selectedRow == -1){
+        JOptionPane.showMessageDialog(this, "Please select a record to delete.");
         return;
     }
-    int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this record?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
-    if (confirm != JOptionPane.YES_OPTION) {
-        return; 
-    }
-    String sql = "DELETE FROM delivers WHERE delivery_id = ?";
+    String deliveryID = dltbl.getValueAt(selectedRow, 0).toString();
 
-    try (Connection con = DatabaseConnection.getConnection();  
-        PreparedStatement pstmt = con.prepareStatement(sql)) {
+    int confirm = JOptionPane.showConfirmDialog(this,
+        "Are you sure you want to delete Delivery ID " + deliveryID + "?",
+        "Confirm Delete", JOptionPane.YES_NO_OPTION);
+
+    if (confirm != JOptionPane.YES_OPTION) return;
+
+    String sql = "DELETE FROM delivers WHERE delivery_id=?";
+
+    try (Connection con = DatabaseConnection.getConnection();
+         PreparedStatement pstmt = con.prepareStatement(sql)) {
         pstmt.setString(1, deliveryID);
+        int rows = pstmt.executeUpdate();
 
-        int rowsAffected = pstmt.executeUpdate();
-
-        if (rowsAffected > 0) {
+        if (rows > 0) {
             JOptionPane.showMessageDialog(this, "Record deleted successfully!");
-            deltxt.setText("");
-            contxt.setText("");
-            qnty.setText("");
-            prc.setText("");
-            dt.setDate(null);
-            supCmb.setSelectedIndex(0);
-            itmCmb.setSelectedIndex(0);
-            supNameCmb.setSelectedIndex(0);
-            itmNameCmb.setSelectedIndex(0);      
             loadData();
         } else {
-            JOptionPane.showMessageDialog(this, "No record found with that Delivery ID.");
+            JOptionPane.showMessageDialog(this, "Record not found!");
         }
 
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
     }
-    }
+}
     private void exportData(){
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Save CSV FIle");
@@ -298,7 +279,6 @@ public class Deliver extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        deltxt = new javax.swing.JTextField();
         supCmb = new javax.swing.JComboBox<>();
         itmCmb = new javax.swing.JComboBox<>();
         contxt = new javax.swing.JTextField();
@@ -309,7 +289,6 @@ public class Deliver extends javax.swing.JFrame {
         svbtn = new javax.swing.JButton();
         dt = new com.toedter.calendar.JDateChooser();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -358,8 +337,6 @@ public class Deliver extends javax.swing.JFrame {
 
         jLabel1.setText("Create New");
 
-        jLabel2.setText("Deliver ID");
-
         jLabel3.setText("Supplier ID");
 
         jLabel4.setText("Item ID");
@@ -383,15 +360,11 @@ public class Deliver extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(136, 136, 136)
-                        .addComponent(svbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel1))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(19, 19, 19)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(prc, javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(qnty, javax.swing.GroupLayout.Alignment.LEADING)
@@ -400,7 +373,6 @@ public class Deliver extends javax.swing.JFrame {
                                 .addComponent(contxt, javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(itmCmb, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(supCmb, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(deltxt, javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(dt, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
                             .addComponent(jLabel3)
                             .addComponent(jLabel4)
@@ -408,8 +380,11 @@ public class Deliver extends javax.swing.JFrame {
                             .addComponent(jLabel6)
                             .addComponent(jLabel7)
                             .addComponent(jLabel8)
-                            .addComponent(jLabel9)
-                            .addComponent(jLabel10))))
+                            .addComponent(jLabel10)
+                            .addComponent(jLabel9)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(133, 133, 133)
+                        .addComponent(svbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(21, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -417,39 +392,35 @@ public class Deliver extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(7, 7, 7)
                 .addComponent(jLabel1)
-                .addGap(1, 1, 1)
-                .addComponent(jLabel2)
-                .addGap(1, 1, 1)
-                .addComponent(deltxt, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(1, 1, 1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
-                .addGap(1, 1, 1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(supCmb, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel4)
-                .addGap(2, 2, 2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(itmCmb, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(contxt, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel6)
-                .addGap(2, 2, 2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(supNameCmb, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel7)
-                .addGap(4, 4, 4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(itmNameCmb, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel8)
-                .addGap(3, 3, 3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(qnty, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel9)
-                .addGap(2, 2, 2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(prc, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel10)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(dt, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -502,7 +473,7 @@ public class Deliver extends javax.swing.JFrame {
                 .addComponent(jLabel11)
                 .addGap(11, 11, 11)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 552, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         updbtn.setText("UPDATE");
@@ -686,7 +657,6 @@ public class Deliver extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField contxt;
     private javax.swing.JButton delbtn;
-    private javax.swing.JTextField deltxt;
     private javax.swing.JTable dltbl;
     private com.toedter.calendar.JDateChooser dt;
     private javax.swing.JButton expbtn;
@@ -698,7 +668,6 @@ public class Deliver extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
