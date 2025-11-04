@@ -44,6 +44,7 @@ public class Item extends javax.swing.JFrame {
 
             while (rs.next()) {
                 model.addRow(new Object[]{
+      
                     rs.getInt("itemID"),
                     rs.getString("code"),
                     rs.getString("name"),
@@ -64,17 +65,19 @@ private void saveItem() {
             return;
         }
 
+        
+        String cleanCode = code.replace(",", "").replace(" ", "");
+        
         String sql = "INSERT INTO Item (code, name, category) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, code);
+            ps.setString(1, cleanCode); 
             ps.setString(2, name);
             ps.setString(3, category);
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
-                // Operation was successful.
                 loadItems();
                 clearFields();
                 JOptionPane.showMessageDialog(this, "Item added successfully!");
@@ -86,8 +89,7 @@ private void saveItem() {
             JOptionPane.showMessageDialog(this, "Error adding item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
- private void updateItem() {
+  private void updateItem() {
         int row = itemTable.getSelectedRow();
 
         if (row < 0) {
@@ -100,11 +102,12 @@ private void saveItem() {
             return;
         }
 
-        int itemID;
+         int itemID;
         try {
-            itemID = Integer.parseInt(itemIdValue.toString());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid Item ID format.", "Data Error", JOptionPane.ERROR_MESSAGE);
+            String itemIdString = itemIdValue.toString().replace(",", "").trim();
+            itemID = Integer.parseInt(itemIdString);
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "Invalid Item ID format: " + nfe.getMessage(), "Data Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -117,19 +120,21 @@ private void saveItem() {
             JOptionPane.showMessageDialog(this, "All fields are required for update!", "Input Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        
+        String cleanCode = code.replace(",", "").replace(" ", "");
 
         String sql = "UPDATE Item SET code=?, name=?, category=? WHERE itemID=?";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, code);
+            ps.setString(1, cleanCode); 
             ps.setString(2, name);
             ps.setString(3, category);
             ps.setInt(4, itemID);
             int rowsAffected = ps.executeUpdate();
 
             if (rowsAffected > 0) {
-                // Operation was successful.
+             
                 loadItems();
                 clearFields();
                 JOptionPane.showMessageDialog(this, "Item updated successfully!");
@@ -148,27 +153,34 @@ private void deleteItem() {
             JOptionPane.showMessageDialog(this, "Please select an item to delete!", "Selection Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
-        int itemID;
-        try {
-            itemID = Integer.parseInt(itemTable.getValueAt(row, 0).toString());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid Item ID format from table.", "Data Error", JOptionPane.ERROR_MESSAGE);
+        Object itemIdValue = itemTable.getValueAt(row, 0);
+        if (itemIdValue == null) {
+            JOptionPane.showMessageDialog(this, "Could not retrieve Item ID from the table.", "Data Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        
+        int itemID;
+        try {
+            String itemIdString = itemIdValue.toString().replace(",", "").trim();
+            itemID = Integer.parseInt(itemIdString);
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this, "Invalid Item ID format from table. Cannot parse ID: " + nfe.getMessage(), "Data Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
 
         int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this item?", "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
         if (confirm == JOptionPane.YES_OPTION) {
             String sql = "DELETE FROM Item WHERE itemID=?";
             try (Connection conn = DatabaseConnection.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                  PreparedStatement ps = conn.prepareStatement(sql)) {
 
                 ps.setInt(1, itemID);
                 int rowsAffected = ps.executeUpdate();
 
                 if (rowsAffected > 0) {
-                    // Operation was successful.
+
                     loadItems();
                     clearFields();
                     JOptionPane.showMessageDialog(this, "Item deleted successfully!");
@@ -370,7 +382,7 @@ private void populateFieldsFromTable() {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Double.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -378,9 +390,6 @@ private void populateFieldsFromTable() {
             }
         });
         jScrollPane1.setViewportView(itemTable);
-        if (itemTable.getColumnModel().getColumnCount() > 0) {
-            itemTable.getColumnModel().getColumn(0).setHeaderValue("Item ID");
-        }
 
         jLabel6.setText("Item List");
 
