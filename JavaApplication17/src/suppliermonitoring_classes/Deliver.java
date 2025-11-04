@@ -263,10 +263,44 @@ public class Deliver extends javax.swing.JFrame {
         }
     }
 }
+    private void setupTableSelection() {
+    dltbl.getSelectionModel().addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting()) {
+            int selectedRow = dltbl.getSelectedRow();
+            if (selectedRow != -1) {
+                String deliveryID = dltbl.getValueAt(selectedRow, 0).toString();
+                String supplierID = dltbl.getValueAt(selectedRow, 1).toString();
+                String itemID = dltbl.getValueAt(selectedRow, 2).toString();
+                String consignor = dltbl.getValueAt(selectedRow, 3).toString();
+                String supplierName = dltbl.getValueAt(selectedRow, 4).toString();
+                String itemName = dltbl.getValueAt(selectedRow, 5).toString();
+                String quantity = dltbl.getValueAt(selectedRow, 6).toString();
+                String price = dltbl.getValueAt(selectedRow, 7).toString();
+                String dateStr = dltbl.getValueAt(selectedRow, 8).toString();
+      
+                supCmb.setSelectedItem(supplierID);
+                itmCmb.setSelectedItem(itemID);
+                contxt.setText(consignor);
+                supNameCmb.setSelectedItem(supplierName);
+                itmNameCmb.setSelectedItem(itemName);
+                qnty.setText(quantity);
+                prc.setText(price);
+
+                try {
+                    java.util.Date date = new SimpleDateFormat("yyyy-MM-dd").parse(dateStr);
+                    dt.setDate(date);
+                } catch (Exception ex) {
+                    dt.setDate(null);
+                }
+            }
+        }
+    });
+}
     public Deliver() {
         initComponents();
         loadData();
         loadComboBoxes();
+        setupTableSelection();
     }
 
     /**
