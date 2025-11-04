@@ -18,6 +18,7 @@ public class Supplier extends javax.swing.JFrame {
     public Supplier() {
         initComponents();
         loadSuppliers();
+        setupTableSelection();
         
        jButton1.addActionListener(evt -> saveSupplier());
        jButton2.addActionListener(evt -> updateSupplier());
@@ -275,6 +276,26 @@ public class Supplier extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Error loading suppliers: " + e.getMessage());
         }
     }
+    
+    private void setupTableSelection() {
+
+    Name.getSelectionModel().addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting()) {
+            int selectedRow = Name.getSelectedRow();
+            if (selectedRow != -1) {
+                // get values from the selected row
+
+                String supplierName = Name.getValueAt(selectedRow, 1).toString();
+                String supplierAddress = Name.getValueAt(selectedRow, 2).toString();
+                String supplierPhone = Name.getValueAt(selectedRow, 3).toString();
+
+                fullname_input.setText(supplierName);
+                address_input.setText(supplierAddress);
+                phonenum_input.setText(supplierPhone);
+            }
+        }
+    });
+}
 
     private void saveSupplier() {
         String name = fullname_input.getText();
@@ -305,15 +326,34 @@ public class Supplier extends javax.swing.JFrame {
 
     private void updateSupplier() {
         int row = Name.getSelectedRow();
+
         if (row < 0) {
-            JOptionPane.showMessageDialog(this, "Please select a supplier to update!");
+        JOptionPane.showMessageDialog(this, "Please select a supplier to update!", "Selection Error", JOptionPane.WARNING_MESSAGE);
+        return;
+        }
+
+        Object supplierIdValue = Name.getValueAt(row, 0);
+        if (supplierIdValue == null) {
+            JOptionPane.showMessageDialog(this, "Could not retrieve Supplier ID from the table.", "Data Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        int id = Integer.parseInt(Name.getValueAt(row, 0).toString());
-        String name = fullname_input.getText();
-        String address = address_input.getText();
-        String phone = phonenum_input.getText();
+        int supplierID;
+        try {
+            supplierID = Integer.parseInt(supplierIdValue.toString());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid Supplier ID format.", "Data Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String name = fullname_input.getText().trim();
+        String address = address_input.getText().trim();
+        String phone = phonenum_input.getText().trim();
+
+        if (name.isEmpty() || address.isEmpty() || phone.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields are required for update!", "Input Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         String sql = "UPDATE supplier SET full_name=?, address=?, phone_num=? WHERE supplierID=?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -322,16 +362,22 @@ public class Supplier extends javax.swing.JFrame {
             ps.setString(1, name);
             ps.setString(2, address);
             ps.setString(3, phone);
-            ps.setInt(4, id);
-            ps.executeUpdate();
-            JOptionPane.showMessageDialog(this, "Supplier updated successfully!");
-            loadSuppliers();
-            clearFields();
+            ps.setInt(4, supplierID);
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                loadSuppliers();
+                clearFields();
+                JOptionPane.showMessageDialog(this, "Supplier updated successfully!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Update failed: Supplier with ID " + supplierID + " not found or no changes were made.", "Update Failed", JOptionPane.WARNING_MESSAGE);
+            }
 
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error updating supplier: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error updating supplier: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
+}
 
     private void deleteSupplier() {
         int row = Name.getSelectedRow();
