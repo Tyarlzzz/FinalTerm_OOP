@@ -4,9 +4,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/supplier_monitoring";
+    private static final String URL = "jdbc:mysql://localhost:3306/SupplyDB";
     private static final String USER = "root";
-    private static final String PASSWORD = "shairamata"; // lagay ung own password nyo sa database
+    private static final String PASSWORD = "pangilinan112804"; // lagay ung own password nyo sa database
                                                               // then wag na i push ulit to sa github, since iba iba tayo password
     private static Connection connection = null;
     

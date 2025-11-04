@@ -3,18 +3,289 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package suppliermonitoring_classes;
-
+import java.sql.*;
+import java.io.*;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.table.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 /**
  *
  * @author Elaine
  */
 public class Deliver extends javax.swing.JFrame {
+    private void loadData() {
+    Connection con = DatabaseConnection.getConnection();
+    String status = null;
 
-    /**
-     * Creates new form Deliver
-     */
+    if (con == null) {
+        status = "xxxxx";
+        JOptionPane.showMessageDialog(this, "Database connection failed!");
+        return;
+    } else {
+        status = "OK";
+    }
+    try {
+        Statement stmt = con.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT * FROM delivers");      
+        DefaultTableModel model = (DefaultTableModel) dltbl.getModel();
+        model.setRowCount(0);
+
+        while (rs.next()) {
+            Object[] row = {
+                rs.getString("delivery_id"),
+                rs.getString("supplierID"),
+                rs.getString("itemID"),
+                rs.getString("consignor"),
+                rs.getString("full_name"),
+                rs.getString("name"),
+                rs.getInt("quantity"),
+                rs.getDouble("price"),
+                rs.getString("date")
+            };
+            model.addRow(row);
+        }
+
+        con.close();
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage());
+    }
+}
+    private void loadComboBoxes() {
+    try (Connection con = DatabaseConnection.getConnection()) {
+        supCmb.removeAllItems();
+        supNameCmb.removeAllItems();
+        itmCmb.removeAllItems();
+        itmNameCmb.removeAllItems();
+
+        Statement st = con.createStatement();
+        ResultSet rs = st.executeQuery("SELECT supplierID, full_name FROM supplier");
+        while (rs.next()) {
+            supCmb.addItem(rs.getString("supplierID"));
+            supNameCmb.addItem(rs.getString("full_name"));
+        }
+        rs = st.executeQuery("SELECT itemID, name FROM item");
+        while (rs.next()) {
+            itmCmb.addItem(rs.getString("itemID"));
+            itmNameCmb.addItem(rs.getString("name"));
+        }
+        rs.close();
+        st.close();
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error loading combo boxes: " + e.getMessage());
+    }
+    }
+    private void updateData(){
+        int selectedRow = dltbl.getSelectedRow();
+        
+        if (selectedRow == -1){
+            JOptionPane.showMessageDialog(this, "Please Select row to update");
+            return;
+        }
+    String deliveryID = deltxt.getText();
+    String supplierID = supCmb.getSelectedItem().toString();
+    String itemID = itmCmb.getSelectedItem().toString();
+    String consignor = contxt.getText();
+    String supplierName = supNameCmb.getSelectedItem().toString();
+    String itemName = itmNameCmb.getSelectedItem().toString();
+    java.util.Date selectedDate = dt.getDate();
+    int quantity = 0;
+    double price = 0.0;
+    
+    try {
+        quantity = Integer.parseInt(qnty.getText());
+        price = Double.parseDouble(prc.getText());
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Quantity and Price must be valid numbers.");
+        return;
+    }
+    if (deliveryID.isEmpty() || consignor.isEmpty() || selectedDate == null) {
+        JOptionPane.showMessageDialog(this, "All fields are required!");
+        return;
+    }
+    int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to update Delivery ID " + deliveryID + "?","Confirm Update", JOptionPane.YES_NO_OPTION);
+    if (confirm != JOptionPane.YES_OPTION) {
+        return;
+    }
+    String sql = "UPDATE delivers SET supplierID = ?, itemID = ?, consignor = ?, full_name = ?, name = ?, quantity = ?, price = ?, date = ? WHERE delivery_id = ?";
+    try (
+        Connection con = DatabaseConnection.getConnection(); 
+        PreparedStatement pstmt = con.prepareStatement(sql)) 
+    {
+        pstmt.setString(1, deliveryID);
+        pstmt.setString(2, supplierID);
+        pstmt.setString(3, itemID);
+        pstmt.setString(4, consignor);
+        pstmt.setString(5, supplierName);
+        pstmt.setString(6, itemName);
+        pstmt.setInt(7, quantity);
+        pstmt.setDouble(8, price);
+        java.sql.Date sqlDate = new java.sql.Date(selectedDate.getTime());
+        pstmt.setDate(8, sqlDate);
+
+        int rowsUpdated = pstmt.executeUpdate();
+
+        if (rowsUpdated > 0) {
+            JOptionPane.showMessageDialog(this, "Record updated successfully!");
+            loadData();
+        } else {
+            JOptionPane.showMessageDialog(this, "No record found with that Delivery ID.");
+        }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
+    }
+    }
+    private void addData(){
+    String deliveryID = deltxt.getText();
+    String supplierID = supCmb.getSelectedItem().toString();
+    String itemID = itmCmb.getSelectedItem().toString();
+    String consignor = contxt.getText();
+    String supplierName = supNameCmb.getSelectedItem().toString();
+    String itemName = itmNameCmb.getSelectedItem().toString();
+    java.util.Date selectedDate = dt.getDate();
+    int quantity = 0;
+    double price = 0.0;
+    
+    try {
+            quantity = Integer.parseInt(qnty.getText());
+            price = Double.parseDouble(prc.getText());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Quantity snd Price Must be valid");
+        }
+    if (deliveryID.isEmpty() || consignor.isEmpty() || selectedDate == null) {
+        JOptionPane.showMessageDialog(this, "All fields are required!");
+        return;
+    }
+    String sql = "insert into delivers (delivery_id, supplierID, itemID, consignor, full_name, name, quantity, price, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    
+    try (
+        Connection con = DatabaseConnection.getConnection(); 
+        PreparedStatement pstmt = con.prepareStatement(sql)
+    ) {
+        pstmt.setString(1, deliveryID);
+        pstmt.setString(2, supplierID);
+        pstmt.setString(3, itemID);
+        pstmt.setString(4, consignor);
+        pstmt.setString(5, supplierName);
+        pstmt.setString(6, itemName);
+        pstmt.setInt(7, quantity);
+        pstmt.setDouble(8, price);
+        java.sql.Date sqlDate = new java.sql.Date(selectedDate.getTime());
+        pstmt.setDate(9, sqlDate);
+        pstmt.executeUpdate();
+
+        JOptionPane.showMessageDialog(this, "Record added successfully!");
+
+        deltxt.setText("");
+        contxt.setText("");
+        qnty.setText("");
+        prc.setText("");
+        dt.setDate(null);
+        supCmb.setSelectedIndex(0);
+        itmCmb.setSelectedIndex(0);
+        supNameCmb.setSelectedIndex(0);
+        itmNameCmb.setSelectedIndex(0);
+        loadData();
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
+    }
+    }
+    private void deleteData() {
+        int selectedRow = dltbl.getSelectedRow();
+        
+        if (selectedRow == -1){
+            javax.swing.JOptionPane.showMessageDialog(this, "Please select a record to delete.");
+            return;
+        }
+    String deliveryID = deltxt.getText();
+    if (deliveryID.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please enter or select a Delivery ID to delete.");
+        return;
+    }
+    int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this record?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+    if (confirm != JOptionPane.YES_OPTION) {
+        return; 
+    }
+    String sql = "DELETE FROM delivers WHERE delivery_id = ?";
+
+    try (Connection con = DatabaseConnection.getConnection();  
+        PreparedStatement pstmt = con.prepareStatement(sql)) {
+        pstmt.setString(1, deliveryID);
+
+        int rowsAffected = pstmt.executeUpdate();
+
+        if (rowsAffected > 0) {
+            JOptionPane.showMessageDialog(this, "Record deleted successfully!");
+            deltxt.setText("");
+            contxt.setText("");
+            qnty.setText("");
+            prc.setText("");
+            dt.setDate(null);
+            supCmb.setSelectedIndex(0);
+            itmCmb.setSelectedIndex(0);
+            supNameCmb.setSelectedIndex(0);
+            itmNameCmb.setSelectedIndex(0);      
+            loadData();
+        } else {
+            JOptionPane.showMessageDialog(this, "No record found with that Delivery ID.");
+        }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
+    }
+    }
+    private void exportData(){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Save CSV FIle");
+        
+        String timestamp = new SimpleDateFormat("yyyy-MM-DD_HHmmss").format(new java.util.Date());
+        chooser.setSelectedFile(new java.io.File("export_" + timestamp + ".csv"));
+        
+        int userSelection = chooser.showSaveDialog(this);
+        
+        if(userSelection == JFileChooser.APPROVE_OPTION){
+            File fileToSave = chooser.getSelectedFile();
+            String filePath = fileToSave.getAbsolutePath();
+            
+            String query = "SELECT * FROM delivers";
+            try (
+                Connection con = DatabaseConnection.getConnection();
+                Statement stmt = con.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+                PrintWriter pw = new PrintWriter(new FileWriter(filePath)))
+            {
+                ResultSetMetaData meta = rs.getMetaData();
+            int columnCount = meta.getColumnCount();
+
+            for (int i = 1; i <= columnCount; i++) {
+                pw.print(meta.getColumnName(i));
+                if (i < columnCount) pw.print(",");
+            }
+            pw.println();
+            while (rs.next()) {
+                for (int i = 1; i <= columnCount; i++) {
+                    pw.print(rs.getString(i));
+                    if (i < columnCount) pw.print(",");
+                }
+                pw.println();
+            }
+
+            JOptionPane.showMessageDialog(this, "Data exported successfully to:\n" + filePath);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error exporting data: " + ex.getMessage());
+        }
+    }
+}
     public Deliver() {
         initComponents();
+        loadData();
+        loadComboBoxes();
     }
 
     /**
@@ -49,7 +320,7 @@ public class Deliver extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        dltbl = new javax.swing.JTable();
         jLabel11 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         updbtn = new javax.swing.JButton();
@@ -79,6 +350,11 @@ public class Deliver extends javax.swing.JFrame {
         });
 
         svbtn.setText("SAVE");
+        svbtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                svbtnActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText("Create New");
 
@@ -184,7 +460,7 @@ public class Deliver extends javax.swing.JFrame {
 
         jPanel2.setPreferredSize(new java.awt.Dimension(420, 500));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        dltbl.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null, null, null},
@@ -203,7 +479,7 @@ public class Deliver extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(dltbl);
 
         jLabel11.setText("Deliver Table");
 
@@ -230,10 +506,25 @@ public class Deliver extends javax.swing.JFrame {
         );
 
         updbtn.setText("UPDATE");
+        updbtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updbtnActionPerformed(evt);
+            }
+        });
 
         expbtn.setText("EXPORT");
+        expbtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                expbtnActionPerformed(evt);
+            }
+        });
 
         delbtn.setText("DELETE");
+        delbtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                delbtnActionPerformed(evt);
+            }
+        });
 
         jLabel12.setText("Action");
 
@@ -275,6 +566,11 @@ public class Deliver extends javax.swing.JFrame {
         });
 
         supbtn.setText("Supplier Record");
+        supbtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                supbtnActionPerformed(evt);
+            }
+        });
 
         jLabel13.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
         jLabel13.setText("Deliver Records");
@@ -325,8 +621,32 @@ public class Deliver extends javax.swing.JFrame {
     }//GEN-LAST:event_itmNameCmbActionPerformed
 
     private void itmbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itmbtnActionPerformed
-        // TODO add your handling code here:
+        Item tm = new Item();
+        tm.setVisible(true);
+        dispose();
     }//GEN-LAST:event_itmbtnActionPerformed
+
+    private void svbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_svbtnActionPerformed
+        addData();
+    }//GEN-LAST:event_svbtnActionPerformed
+
+    private void updbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updbtnActionPerformed
+       updateData();
+    }//GEN-LAST:event_updbtnActionPerformed
+
+    private void expbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_expbtnActionPerformed
+       exportData();
+    }//GEN-LAST:event_expbtnActionPerformed
+
+    private void delbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delbtnActionPerformed
+        deleteData();
+    }//GEN-LAST:event_delbtnActionPerformed
+
+    private void supbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_supbtnActionPerformed
+        Supplier sp = new Supplier();
+        sp.setVisible(true);
+        dispose();
+    }//GEN-LAST:event_supbtnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -367,6 +687,7 @@ public class Deliver extends javax.swing.JFrame {
     private javax.swing.JTextField contxt;
     private javax.swing.JButton delbtn;
     private javax.swing.JTextField deltxt;
+    private javax.swing.JTable dltbl;
     private com.toedter.calendar.JDateChooser dt;
     private javax.swing.JButton expbtn;
     private javax.swing.JComboBox<String> itmCmb;
@@ -389,7 +710,6 @@ public class Deliver extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField prc;
     private javax.swing.JTextField qnty;
     private javax.swing.JComboBox<String> supCmb;
