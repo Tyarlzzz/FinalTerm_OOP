@@ -56,7 +56,7 @@ public class Supplier extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(1000, 650));
+        setMinimumSize(new java.awt.Dimension(1200, 650));
         setPreferredSize(new java.awt.Dimension(1100, 600));
         getContentPane().setLayout(null);
 
@@ -98,7 +98,7 @@ public class Supplier extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(83, 83, 83)
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -121,7 +121,7 @@ public class Supplier extends javax.swing.JFrame {
         );
 
         getContentPane().add(jPanel1);
-        jPanel1.setBounds(20, 80, 323, 510);
+        jPanel1.setBounds(20, 80, 340, 510);
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Actions", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI Semibold", 0, 12))); // NOI18N
 
@@ -161,7 +161,7 @@ public class Supplier extends javax.swing.JFrame {
         );
 
         getContentPane().add(jPanel2);
-        jPanel2.setBounds(810, 80, 172, 192);
+        jPanel2.setBounds(950, 80, 172, 192);
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Supplier List", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI Semibold", 0, 12))); // NOI18N
         jPanel3.setPreferredSize(new java.awt.Dimension(440, 350));
@@ -182,18 +182,18 @@ public class Supplier extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 538, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 492, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 481, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         getContentPane().add(jPanel3);
-        jPanel3.setBounds(350, 80, 440, 521);
+        jPanel3.setBounds(370, 80, 560, 510);
 
         jButton5.setFont(new java.awt.Font("Segoe UI Semibold", 0, 12)); // NOI18N
         jButton5.setText(" Item Record");
@@ -203,7 +203,7 @@ public class Supplier extends javax.swing.JFrame {
             }
         });
         getContentPane().add(jButton5);
-        jButton5.setBounds(751, 51, 106, 23);
+        jButton5.setBounds(880, 50, 106, 23);
 
         jButton6.setFont(new java.awt.Font("Segoe UI Semibold", 0, 12)); // NOI18N
         jButton6.setText("Deliver Record");
@@ -213,7 +213,7 @@ public class Supplier extends javax.swing.JFrame {
             }
         });
         getContentPane().add(jButton6);
-        jButton6.setBounds(869, 51, 111, 23);
+        jButton6.setBounds(1000, 50, 120, 23);
 
         jLabel5.setFont(new java.awt.Font("Segoe UI Semibold", 0, 40)); // NOI18N
         jLabel5.setText("SUPPLIER MONITORING");
