@@ -342,7 +342,7 @@ public class Deliver extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1196, 2000));
+        setPreferredSize(new java.awt.Dimension(1200, 600));
         getContentPane().setLayout(null);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Deliver Record", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI Semibold", 0, 12))); // NOI18N
@@ -529,18 +529,18 @@ public class Deliver extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 788, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 558, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 593, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 581, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         getContentPane().add(jPanel2);
-        jPanel2.setBounds(459, 66, 810, 622);
+        jPanel2.setBounds(460, 70, 580, 610);
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Actions", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI Semibold", 0, 12))); // NOI18N
 
@@ -593,7 +593,7 @@ public class Deliver extends javax.swing.JFrame {
         );
 
         getContentPane().add(jPanel3);
-        jPanel3.setBounds(1280, 70, 195, 196);
+        jPanel3.setBounds(1060, 70, 195, 196);
 
         itmbtn.setFont(new java.awt.Font("Segoe UI Semibold", 0, 12)); // NOI18N
         itmbtn.setText("Item Record");
@@ -603,7 +603,7 @@ public class Deliver extends javax.swing.JFrame {
             }
         });
         getContentPane().add(itmbtn);
-        itmbtn.setBounds(1230, 40, 110, 23);
+        itmbtn.setBounds(1000, 40, 110, 23);
 
         supbtn.setFont(new java.awt.Font("Segoe UI Semibold", 0, 12)); // NOI18N
         supbtn.setText("Supplier Record");
@@ -613,7 +613,7 @@ public class Deliver extends javax.swing.JFrame {
             }
         });
         getContentPane().add(supbtn);
-        supbtn.setBounds(1350, 40, 120, 23);
+        supbtn.setBounds(1130, 40, 120, 23);
 
         jLabel13.setFont(new java.awt.Font("Segoe UI Semibold", 1, 40)); // NOI18N
         jLabel13.setText("SUPPLIER MONITORING");
