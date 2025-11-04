@@ -37,7 +37,7 @@ public class Deliver extends javax.swing.JFrame {
 
         while (rs.next()) {
             Object[] row = {
-                rs.getString("delivery_id"),
+                rs.getString("deliveryID"),
                 rs.getString("supplierID"),
                 rs.getString("itemID"),
                 rs.getString("consignor"),
@@ -109,7 +109,7 @@ public class Deliver extends javax.swing.JFrame {
         return;
     }
 
-    String sql = "UPDATE delivers SET supplierID=?, itemID=?, consignor=?, full_name=?, name=?, quantity=?, price=?, date=? WHERE delivery_id=?";
+    String sql = "UPDATE delivers SET supplierID=?, itemID=?, consignor=?, full_name=?, name=?, quantity=?, price=?, date=? WHERE deliveryID=?";
 
     try (Connection con = DatabaseConnection.getConnection();
          PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -203,7 +203,7 @@ public class Deliver extends javax.swing.JFrame {
 
     if (confirm != JOptionPane.YES_OPTION) return;
 
-    String sql = "DELETE FROM delivers WHERE delivery_id=?";
+    String sql = "DELETE FROM delivers WHERE deliveryID=?";
 
     try (Connection con = DatabaseConnection.getConnection();
          PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -565,7 +565,7 @@ public class Deliver extends javax.swing.JFrame {
                         .addComponent(itmbtn)
                         .addGap(18, 18, 18)
                         .addComponent(supbtn)))
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
