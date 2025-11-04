@@ -23,175 +23,164 @@ public class Item extends javax.swing.JFrame {
         initComponents();
         loadItems(); 
        
-        saveItem.addActionListener(new java.awt.event.ActionListener() {
-        @Override
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            saveItemActionPerformed(evt);
-        }
-    });
-        
-    updateItem.addActionListener(new java.awt.event.ActionListener() {
-        @Override
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            updateItemActionPerformed(evt);
-        }
-    });
-    deleteItem.addActionListener(new java.awt.event.ActionListener() {
-        @Override
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            deleteItemActionPerformed(evt);
-        }
-    });
-    exportItem.addActionListener(new java.awt.event.ActionListener() {
-        @Override
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            exportItemActionPerformed(evt);
-        }
-    });
-
-    itemTable.addMouseListener(new java.awt.event.MouseAdapter() {
-        @Override
-        public void mouseClicked(java.awt.event.MouseEvent evt) {
-            itemTableMouseClicked(evt); 
-        }
-    });
+        itemTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                itemTableMouseClicked(evt); 
+            }
+        });
         }
     
     private void loadItems() {
-    DefaultTableModel model = (DefaultTableModel) itemTable.getModel();
-    model.setRowCount(0); 
+        DefaultTableModel model = (DefaultTableModel) itemTable.getModel();
+        model.setRowCount(0);
 
-    try (Connection conn = DatabaseConnection.getConnection(); 
-          Statement stmt = conn.createStatement();
-          ResultSet rs = stmt.executeQuery("SELECT itemID, code, name, category FROM Item")) {
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT itemID, code, name, category FROM Item")) {
 
-        
-        model.setColumnIdentifiers(new String[]{"ID", "Code", "Name", "Category"});
-        
-        while (rs.next()) {
-            model.addRow(new Object[]{
-                rs.getInt("itemID"),
-                rs.getString("code"),
-                rs.getString("name"),
-                rs.getString("category")
-            });
+
+            model.setColumnIdentifiers(new String[]{"ID", "Code", "Name", "Category"});
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                    rs.getInt("itemID"),
+                    rs.getString("code"),
+                    rs.getString("name"),
+                    rs.getString("category")
+                });
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading items: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error loading items: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE); 
     }
-}
 private void saveItem() {
-    String code = itemCodetxt.getText().trim();
-    String name = itemNametxt.getText().trim();
-    String category = itemCategorytxt.getText().trim();
+        String code = itemCodetxt.getText().trim();
+        String name = itemNametxt.getText().trim();
+        String category = itemCategorytxt.getText().trim();
 
-    if (code.isEmpty() || name.isEmpty() || category.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please input in all required fields (Code, Name, Category)!", "Input Error", JOptionPane.WARNING_MESSAGE); 
-        return; 
-    }
-
-    String sql = "INSERT INTO Item (code, name, category) VALUES (?, ?, ?)"; 
-    try (Connection conn = DatabaseConnection.getConnection(); 
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-        ps.setString(1, code);
-        ps.setString(2, name);
-        ps.setString(3, category);
-        int rowsAffected = ps.executeUpdate(); 
-        if (rowsAffected > 0) {
-            JOptionPane.showMessageDialog(this, "Item added successfully!");
-            loadItems();
-            clearFields(); 
-        } else {
-            JOptionPane.showMessageDialog(this, "Item insertion failed (0 rows affected).", "Database Error", JOptionPane.ERROR_MESSAGE);
+        if (code.isEmpty() || name.isEmpty() || category.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please input in all required fields (Code, Name, Category)!", "Input Error", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-        
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error adding item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE); 
-    }
-}
 
-private void updateItem() {
-    int row = itemTable.getSelectedRow(); 
-    
-    if (row < 0) {
-        JOptionPane.showMessageDialog(this, "Please select an item to update!", "Selection Error", JOptionPane.WARNING_MESSAGE); 
-        return;
-    }
-    Object itemIdValue = itemTable.getValueAt(row, 0);
-    if (itemIdValue == null) {
-        JOptionPane.showMessageDialog(this, "Could not retrieve Item ID from the table.", "Data Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    int itemID = Integer.parseInt(itemIdValue.toString());
+        String sql = "INSERT INTO Item (code, name, category) VALUES (?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-    String code = itemCodetxt.getText().trim();
-    String name = itemNametxt.getText().trim();
-    String category = itemCategorytxt.getText().trim();
+            ps.setString(1, code);
+            ps.setString(2, name);
+            ps.setString(3, category);
+            int rowsAffected = ps.executeUpdate();
 
-    if (code.isEmpty() || name.isEmpty() || category.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "All fields are required for update!", "Input Error", JOptionPane.WARNING_MESSAGE);
-        return; 
-    }
-
-    String sql = "UPDATE Item SET code=?, name=?, category=? WHERE itemID=?"; 
-    try (Connection conn = DatabaseConnection.getConnection(); 
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-
-        ps.setString(1, code);
-        ps.setString(2, name);
-        ps.setString(3, category);
-        ps.setInt(4, itemID);
-        int rowsAffected = ps.executeUpdate();
-        
-        if (rowsAffected > 0) {
-            JOptionPane.showMessageDialog(this, "Item updated successfully!"); 
-            loadItems();
-            clearFields();
-        } else {
-             JOptionPane.showMessageDialog(this, "Update failed: Item with ID " + itemID + " not found or no changes were made.", "Update Failed", JOptionPane.WARNING_MESSAGE);
-        }
-        
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error updating item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE); 
-    }
-}
-private void deleteItem() {
-    int row = itemTable.getSelectedRow(); 
-    
-    if (row < 0) {
-        JOptionPane.showMessageDialog(this, "Please select an item to delete!", "Selection Error", JOptionPane.WARNING_MESSAGE); 
-        return;
-    }
-    
-    int itemID = Integer.parseInt(itemTable.getValueAt(row, 0).toString()); 
-    
-    int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this item?", "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE); 
-    
-    if (confirm == JOptionPane.YES_OPTION) { 
-        String sql = "DELETE FROM Item WHERE itemID=?"; 
-        try (Connection conn = DatabaseConnection.getConnection(); 
-              PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, itemID);
-            int rowsAffected = ps.executeUpdate(); 
-            
             if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(this, "Item deleted successfully!");
+                // Operation was successful.
                 loadItems();
                 clearFields();
+                JOptionPane.showMessageDialog(this, "Item added successfully!");
             } else {
-                 JOptionPane.showMessageDialog(this, "Deletion failed: Item with ID " + itemID + " not found.", "Deletion Failed", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Item insertion failed (0 rows affected).", "Database Error", JOptionPane.ERROR_MESSAGE);
             }
-            
+
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error deleting item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE); 
+            JOptionPane.showMessageDialog(this, "Error adding item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-} 
+
+ private void updateItem() {
+        int row = itemTable.getSelectedRow();
+
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Please select an item to update!", "Selection Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Object itemIdValue = itemTable.getValueAt(row, 0);
+        if (itemIdValue == null) {
+            JOptionPane.showMessageDialog(this, "Could not retrieve Item ID from the table.", "Data Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int itemID;
+        try {
+            itemID = Integer.parseInt(itemIdValue.toString());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid Item ID format.", "Data Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
 
+        String code = itemCodetxt.getText().trim();
+        String name = itemNametxt.getText().trim();
+        String category = itemCategorytxt.getText().trim();
+
+        if (code.isEmpty() || name.isEmpty() || category.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "All fields are required for update!", "Input Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String sql = "UPDATE Item SET code=?, name=?, category=? WHERE itemID=?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, code);
+            ps.setString(2, name);
+            ps.setString(3, category);
+            ps.setInt(4, itemID);
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                // Operation was successful.
+                loadItems();
+                clearFields();
+                JOptionPane.showMessageDialog(this, "Item updated successfully!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Update failed: Item with ID " + itemID + " not found or no changes were made.", "Update Failed", JOptionPane.WARNING_MESSAGE);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error updating item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+private void deleteItem() {
+        int row = itemTable.getSelectedRow();
+
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Please select an item to delete!", "Selection Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int itemID;
+        try {
+            itemID = Integer.parseInt(itemTable.getValueAt(row, 0).toString());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid Item ID format from table.", "Data Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this item?", "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            String sql = "DELETE FROM Item WHERE itemID=?";
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                ps.setInt(1, itemID);
+                int rowsAffected = ps.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    // Operation was successful.
+                    loadItems();
+                    clearFields();
+                    JOptionPane.showMessageDialog(this, "Item deleted successfully!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Deletion failed: Item with ID " + itemID + " not found.", "Deletion Failed", JOptionPane.WARNING_MESSAGE);
+                }
+
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error deleting item: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 private void exportItem() {
     JFileChooser chooser = new JFileChooser();
     chooser.setDialogTitle("Save Items CSV File");
@@ -242,8 +231,7 @@ private void exportItem() {
         }
     }
 }
-private void clearFields() {
-    ItemIDtxt.setText(""); 
+private void clearFields() { 
     itemCodetxt.setText("");
     itemNametxt.setText("");
     itemCategorytxt.setText(""); 
@@ -254,7 +242,6 @@ private void populateFieldsFromTable() {
     
     if (selectedRow >= 0) {
         // Data in the table columns: 0=itemID, 1=code, 2=name, 3=category
-        ItemIDtxt.setText(itemTable.getValueAt(selectedRow, 0).toString());
         itemCodetxt.setText(itemTable.getValueAt(selectedRow, 1).toString());
         itemNametxt.setText(itemTable.getValueAt(selectedRow, 2).toString());
         itemCategorytxt.setText(itemTable.getValueAt(selectedRow, 3).toString());
@@ -272,12 +259,10 @@ private void populateFieldsFromTable() {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        ItemIDtxt = new javax.swing.JTextField();
         itemCodetxt = new javax.swing.JTextField();
         itemNametxt = new javax.swing.JTextField();
         itemCategorytxt = new javax.swing.JTextField();
         saveItem = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -294,12 +279,6 @@ private void populateFieldsFromTable() {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setText("Create New");
-
-        ItemIDtxt.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ItemIDtxtActionPerformed(evt);
-            }
-        });
 
         itemCodetxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -326,8 +305,6 @@ private void populateFieldsFromTable() {
             }
         });
 
-        jLabel2.setText("Item ID");
-
         jLabel3.setText("Item Code");
 
         jLabel4.setText("Item Name");
@@ -341,35 +318,30 @@ private void populateFieldsFromTable() {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel1))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(102, 102, 102)
                         .addComponent(saveItem, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(30, 30, 30)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(ItemIDtxt)
                                 .addComponent(itemCodetxt)
                                 .addComponent(itemNametxt)
                                 .addComponent(itemCategorytxt, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE))
                             .addComponent(jLabel3)
                             .addComponent(jLabel5)
-                            .addComponent(jLabel4))))
+                            .addComponent(jLabel4)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel1)
+                        .addGap(325, 325, 325)))
                 .addContainerGap(33, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(60, 60, 60)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
-                .addGap(4, 4, 4)
-                .addComponent(ItemIDtxt, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel3)
                 .addGap(2, 2, 2)
                 .addComponent(itemCodetxt, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -383,7 +355,7 @@ private void populateFieldsFromTable() {
                 .addComponent(itemCategorytxt, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(saveItem, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(176, Short.MAX_VALUE))
         );
 
         itemTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -406,6 +378,9 @@ private void populateFieldsFromTable() {
             }
         });
         jScrollPane1.setViewportView(itemTable);
+        if (itemTable.getColumnModel().getColumnCount() > 0) {
+            itemTable.getColumnModel().getColumn(0).setHeaderValue("Item ID");
+        }
 
         jLabel6.setText("Item List");
 
@@ -514,10 +489,6 @@ private void populateFieldsFromTable() {
        exportItem(); // TODO add your handling code here:
     }//GEN-LAST:event_exportItemActionPerformed
 
-    private void ItemIDtxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ItemIDtxtActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_ItemIDtxtActionPerformed
-
     private void deleteItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteItemActionPerformed
         deleteItem();// TODO add your handling code here:
     }//GEN-LAST:event_deleteItemActionPerformed
@@ -555,7 +526,7 @@ private void itemTableMouseClicked(java.awt.event.MouseEvent evt) {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -580,7 +551,6 @@ private void itemTableMouseClicked(java.awt.event.MouseEvent evt) {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField ItemIDtxt;
     private javax.swing.JButton deleteItem;
     private javax.swing.JButton exportItem;
     private javax.swing.JTextField itemCategorytxt;
@@ -588,7 +558,6 @@ private void itemTableMouseClicked(java.awt.event.MouseEvent evt) {
     private javax.swing.JTextField itemNametxt;
     private javax.swing.JTable itemTable;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
