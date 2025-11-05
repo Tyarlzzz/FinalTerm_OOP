@@ -3,9 +3,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package suppliermonitoring_classes;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 /**
  *
  * @author Eunice
@@ -399,22 +404,67 @@ public class Supplier extends javax.swing.JFrame {
         }
     }
 
-    private void exportSupplier() {
-        try {
-            DefaultTableModel model = (DefaultTableModel) Name.getModel();
-            java.io.FileWriter fw = new java.io.FileWriter("suppliers_export.csv");
-            fw.write("Supplier ID, Supplier Name, Supplier Address, Supplier Phone Number\n");
+        private void exportSupplier() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Save Excel File");
 
-            for (int i = 0; i < model.getRowCount(); i++) {
-                fw.write(model.getValueAt(i, 0) + "," +
-                         model.getValueAt(i, 1) + "," +
-                         model.getValueAt(i, 2) + "," +
-                         model.getValueAt(i, 3) + "\n");
+        // Automatic filename with timestamp
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new java.util.Date());
+        chooser.setSelectedFile(new java.io.File("Supplier List" + timestamp + ".xlsx"));
+        int userSelection = chooser.showSaveDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = chooser.getSelectedFile();
+            if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".xlsx")) {
+                fileToSave = new File(fileToSave.getAbsolutePath() + ".xlsx");
             }
-            fw.close();
-            JOptionPane.showMessageDialog(this, "Suppliers exported to suppliers_export.csv!");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error exporting suppliers: " + e.getMessage());
+
+            String query = "SELECT * FROM supplier";
+
+            try (
+                Connection con = DatabaseConnection.getConnection();
+                Statement stmt = con.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+                Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook()
+            ) {
+                Sheet sheet = workbook.createSheet("Supplier List");
+                
+                // Header
+                ResultSetMetaData meta = rs.getMetaData();
+                int columnCount = meta.getColumnCount();
+                
+                org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0); 
+                for (int i = 1; i <= columnCount; i++) {
+                    headerRow.createCell(i - 1).setCellValue(meta.getColumnName(i));
+                }
+
+                // Data rows
+                int rowIndex = 1;
+                while (rs.next()) {
+                    org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowIndex++);
+                    for (int i = 1; i <= columnCount; i++) {
+                        Object value = rs.getObject(i);
+                        row.createCell(i - 1).setCellValue(value != null ? value.toString() : "");
+                    }
+                }
+
+                // Autosize columns
+                for (int i = 0; i < columnCount; i++) {
+                    sheet.autoSizeColumn(i);
+                }
+
+                // Write file
+                try (FileOutputStream fileOut = new FileOutputStream(fileToSave)) {
+                    workbook.write(fileOut);
+                }
+
+                JOptionPane.showMessageDialog(this,
+                    "Data exported successfully to:\n" + fileToSave.getAbsolutePath());
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error exporting data: " + ex.getMessage());
+                ex.printStackTrace();
+            }
         }
     }
 
