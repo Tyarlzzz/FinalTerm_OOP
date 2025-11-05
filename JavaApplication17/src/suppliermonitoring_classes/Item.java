@@ -9,10 +9,7 @@ import java.io.*;
 import java.text.SimpleDateFormat; 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import suppliermonitoring_classes.DatabaseConnection; 
-
 /**
  *
  * @author Elaine
@@ -197,69 +194,56 @@ private void deleteItem() {
             }
         }
     }
-    private void exportItem() {
-        JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle("Save Excel File");
+private void exportItem() {
+    JFileChooser chooser = new JFileChooser();
+    chooser.setDialogTitle("Save Items CSV File");
+    
+    String timestamp = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new java.util.Date());
+    chooser.setSelectedFile(new java.io.File("items_" + timestamp + ".csv"));
+    
+    int userSelection = chooser.showSaveDialog(this);
 
-        // Automatic filename with timestamp
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new java.util.Date());
-        chooser.setSelectedFile(new java.io.File("Item List" + timestamp + ".xlsx"));
-        int userSelection = chooser.showSaveDialog(this);
+    if (userSelection == JFileChooser.APPROVE_OPTION) {
+        File fileToSave = chooser.getSelectedFile();
+        String filePath = fileToSave.getAbsolutePath();
+        String query = "SELECT itemID, code, name, category FROM Item";
 
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
-            File fileToSave = chooser.getSelectedFile();
-            if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".xlsx")) {
-                fileToSave = new File(fileToSave.getAbsolutePath() + ".xlsx");
+        try (
+            Connection con = DatabaseConnection.getConnection();
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            PrintWriter pw = new PrintWriter(new FileWriter(filePath)) 
+        ) {
+
+            ResultSetMetaData meta = rs.getMetaData();
+            int columnCount = meta.getColumnCount();
+
+            for (int i = 1; i <= columnCount; i++) {
+                pw.print(meta.getColumnLabel(i)); 
+                if (i < columnCount) pw.print(",");
             }
-
-            String query = "SELECT * FROM item";
-
-            try (
-                Connection con = DatabaseConnection.getConnection();
-                Statement stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery(query);
-                Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook()
-            ) {
-                Sheet sheet = workbook.createSheet("Item List");
-                
-                // Header
-                ResultSetMetaData meta = rs.getMetaData();
-                int columnCount = meta.getColumnCount();
-                
-                org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0); 
+            pw.println();
+            while (rs.next()) {
                 for (int i = 1; i <= columnCount; i++) {
-                    headerRow.createCell(i - 1).setCellValue(meta.getColumnName(i));
-                }
-
-                // Data rows
-                int rowIndex = 1;
-                while (rs.next()) {
-                    org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowIndex++);
-                    for (int i = 1; i <= columnCount; i++) {
-                        Object value = rs.getObject(i);
-                        row.createCell(i - 1).setCellValue(value != null ? value.toString() : "");
+                    String value = rs.getString(i);
+                    if (value != null && value.contains(",")) {
+                        pw.print("\"" + value.replace("\"", "\"\"") + "\"");
+                    } else {
+                        pw.print(value != null ? value : "");
                     }
+                    
+                    if (i < columnCount) pw.print(",");
                 }
-
-                // Autosize columns
-                for (int i = 0; i < columnCount; i++) {
-                    sheet.autoSizeColumn(i);
-                }
-
-                // Write file
-                try (FileOutputStream fileOut = new FileOutputStream(fileToSave)) {
-                    workbook.write(fileOut);
-                }
-
-                JOptionPane.showMessageDialog(this,
-                    "Data exported successfully to:\n" + fileToSave.getAbsolutePath());
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error exporting data: " + ex.getMessage());
-                ex.printStackTrace();
+                pw.println();
             }
+
+            JOptionPane.showMessageDialog(this, "Items exported successfully to:\n" + filePath);
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error exporting data: " + ex.getMessage());
         }
     }
+}
 private void clearFields() { 
     itemCodetxt.setText("");
     itemNametxt.setText("");

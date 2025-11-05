@@ -12,8 +12,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  *
@@ -223,70 +221,48 @@ public class Deliver extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage());
     }
 }
-    private void exportData() {
+    private void exportData(){
         JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle("Save Excel File");
-
-        // Automatic filename with timestamp
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new java.util.Date());
-        chooser.setSelectedFile(new java.io.File("Deliver List" + timestamp + ".xlsx"));
+        chooser.setDialogTitle("Save CSV FIle");
+        
+        String timestamp = new SimpleDateFormat("yyyy-MM-DD_HHmmss").format(new java.util.Date());
+        chooser.setSelectedFile(new java.io.File("export_" + timestamp + ".csv"));
+        
         int userSelection = chooser.showSaveDialog(this);
-
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
+        
+        if(userSelection == JFileChooser.APPROVE_OPTION){
             File fileToSave = chooser.getSelectedFile();
-            if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".xlsx")) {
-                fileToSave = new File(fileToSave.getAbsolutePath() + ".xlsx");
-            }
-
-            String query = "SELECT * FROM deliver";
-
+            String filePath = fileToSave.getAbsolutePath();
+            
+            String query = "SELECT * FROM delivers";
             try (
                 Connection con = DatabaseConnection.getConnection();
                 Statement stmt = con.createStatement();
                 ResultSet rs = stmt.executeQuery(query);
-                Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook()
-            ) {
-                Sheet sheet = workbook.createSheet("Deliver List");
-                
-                // Header
+                PrintWriter pw = new PrintWriter(new FileWriter(filePath)))
+            {
                 ResultSetMetaData meta = rs.getMetaData();
-                int columnCount = meta.getColumnCount();
-                
-                org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0); 
-                for (int i = 1; i <= columnCount; i++) {
-                    headerRow.createCell(i - 1).setCellValue(meta.getColumnName(i));
-                }
+            int columnCount = meta.getColumnCount();
 
-                // Data rows
-                int rowIndex = 1;
-                while (rs.next()) {
-                    org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowIndex++);
-                    for (int i = 1; i <= columnCount; i++) {
-                        Object value = rs.getObject(i);
-                        row.createCell(i - 1).setCellValue(value != null ? value.toString() : "");
-                    }
-                }
-
-                // Autosize columns
-                for (int i = 0; i < columnCount; i++) {
-                    sheet.autoSizeColumn(i);
-                }
-
-                // Write file
-                try (FileOutputStream fileOut = new FileOutputStream(fileToSave)) {
-                    workbook.write(fileOut);
-                }
-
-                JOptionPane.showMessageDialog(this,
-                    "Data exported successfully to:\n" + fileToSave.getAbsolutePath());
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error exporting data: " + ex.getMessage());
-                ex.printStackTrace();
+            for (int i = 1; i <= columnCount; i++) {
+                pw.print(meta.getColumnName(i));
+                if (i < columnCount) pw.print(",");
             }
+            pw.println();
+            while (rs.next()) {
+                for (int i = 1; i <= columnCount; i++) {
+                    pw.print(rs.getString(i));
+                    if (i < columnCount) pw.print(",");
+                }
+                pw.println();
+            }
+
+            JOptionPane.showMessageDialog(this, "Data exported successfully to:\n" + filePath);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error exporting data: " + ex.getMessage());
         }
     }
-    
+}
     private void setupTableSelection() {
     dltbl.getSelectionModel().addListSelectionListener(e -> {
         if (!e.getValueIsAdjusting()) {
